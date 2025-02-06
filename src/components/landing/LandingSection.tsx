@@ -15,11 +15,13 @@ const spaceGrotesk = Space_Grotesk({
 type LandingSectionProps = {
     name?: string
     title?: string
+    description?: string
 }
 
 export const LandingSection: FC<LandingSectionProps> = ({
-                                                            name = "John Doe",
-                                                            title = "Full Stack Developer",
+                                                            name = "Name",
+                                                            title = "Title",
+                                                            description = "Description",
                                                         }) => {
     return (
         <section
@@ -78,9 +80,7 @@ export const LandingSection: FC<LandingSectionProps> = ({
                         transition={{duration: 0.8, delay: 0.8}}
                         className="text-lg sm:text-xl text-zinc-400 mb-12 leading-relaxed max-w-2xl"
                     >
-                        Crafting cutting-edge digital experiences with a passion for clean code and innovative
-                        solutions. Let's turn
-                        your ideas into reality.
+                        {description}
                     </motion.p>
 
                     <motion.div
