@@ -1,0 +1,8 @@
+services:
+  personal-production:
+    build:
+      context: ../../
+      dockerfile: docker/production/Dockerfile
+    image: personal-production
+    ports:
+      - "3003:3000"
