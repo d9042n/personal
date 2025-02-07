@@ -82,7 +82,7 @@ export const generateSlug = (str: string): string => {
  * @param ms - Number of milliseconds to delay
  * @returns Debounced function
  */
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => unknown>(
     fn: T,
     ms: number
 ): ((...args: Parameters<T>) => void) => {
