@@ -11,17 +11,26 @@ const spaceGrotesk = Space_Grotesk({
     subsets: ["latin"],
     variable: "--font-space-grotesk",
 })
-
 type LandingSectionProps = {
     name?: string
     title?: string
     description?: string
+    socialLinks?: {
+        github?: string
+        linkedin?: string
+        twitter?: string
+    }
 }
 
 export const LandingSection: FC<LandingSectionProps> = ({
                                                             name = "Name",
                                                             title = "Title",
                                                             description = "Description",
+                                                            socialLinks = {
+                                                                github: "#",
+                                                                linkedin: "#",
+                                                                twitter: "#",
+                                                            },
                                                         }) => {
     return (
         <section
@@ -43,26 +52,16 @@ export const LandingSection: FC<LandingSectionProps> = ({
 
             <div className="relative z-10 container mx-auto px-4 py-16 md:px-6">
                 <div className="max-w-4xl mx-auto">
-                    <motion.div
-                        initial={{opacity: 0, y: 20}}
-                        animate={{opacity: 1, y: 0}}
-                        transition={{duration: 0.8, delay: 0.2}}
-                        className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-800/50 border border-zinc-700 backdrop-blur-sm"
-                    >
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"/>
-                        <span className="text-sm text-zinc-400 font-mono">Available for hire</span>
-                    </motion.div>
-
                     <motion.h1
                         initial={{opacity: 0, y: 20}}
                         animate={{opacity: 1, y: 0}}
                         transition={{duration: 0.8, delay: 0.4}}
                         className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 md:mb-8 tracking-tight font-sans"
                     >
-            <span
-                className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-500">
-              {name}
-            </span>
+                        <span
+                            className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-500">
+                            {name}
+                        </span>
                     </motion.h1>
 
                     <motion.h2
@@ -107,13 +106,16 @@ export const LandingSection: FC<LandingSectionProps> = ({
                         transition={{duration: 0.8, delay: 1.2}}
                         className="mt-12 flex gap-6"
                     >
-                        <a href="#" className="text-zinc-400 hover:text-white transition-colors duration-300">
+                        <a href={socialLinks.github}
+                           className="text-zinc-400 hover:text-white transition-colors duration-300">
                             <Github className="w-6 h-6"/>
                         </a>
-                        <a href="#" className="text-zinc-400 hover:text-white transition-colors duration-300">
+                        <a href={socialLinks.linkedin}
+                           className="text-zinc-400 hover:text-white transition-colors duration-300">
                             <Linkedin className="w-6 h-6"/>
                         </a>
-                        <a href="#" className="text-zinc-400 hover:text-white transition-colors duration-300">
+                        <a href={socialLinks.twitter}
+                           className="text-zinc-400 hover:text-white transition-colors duration-300">
                             <Twitter className="w-6 h-6"/>
                         </a>
                     </motion.div>
