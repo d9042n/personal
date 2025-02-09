@@ -35,18 +35,17 @@ jobs:
           pr_found=false
           destination_branch=""
 
-          # Extract the commit messages into readable format
-          commit_messages="${{ toJSON(github.event.commits.*.message) }}"
-          IFS='|||'
-
-          for message in $(echo "$commit_messages" | jq -r '.[]'); do
+          # Extract the commit messages using a different approach
+          commit_messages=$(git log --format=%B ${{ github.event.before }}..${{ github.event.after }})
+          
+          while IFS= read -r message; do
             echo "Parsing commit message: $message"
             if [[ "$message" =~ \[PR\ to\ branch:([^]]+)\] ]]; then
               destination_branch="${BASH_REMATCH[1]}"
               pr_found=true
               break
             fi
-          done
+          done <<< "$commit_messages"
 
           if [ "$pr_found" = true ]; then
             echo "Destination branch found: $destination_branch"
