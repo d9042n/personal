@@ -1,0 +1,88 @@
+name: Create Pull Request
+
+on:
+  push:
+    branches-ignore:
+      - '**/dependabot/**' # Ignore pushes from Dependabot and other automated branches
+      - main              # Avoid processing push events to "main" branch directly
+      - develop           # You can customize branches to ignore if needed
+
+permissions:
+  contents: write         # Required to create pull requests via the GitHub API
+  pull-requests: write    # Allows creating and managing PRs
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up tools for enhanced validation
+        run: |
+          # Install jq for JSON processing securely
+          sudo apt-get update && sudo apt-get install jq -y
+
+      - name: Check commit messages and create PR
+        id: create_pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+        run: |
+          set -euo pipefail
+
+          echo "Parsing commit messages..."
+          pr_found=false
+          destination_branch=""
+
+          # Extract the commit messages into readable format
+          commit_messages="${{ toJSON(github.event.commits.*.message) }}"
+          IFS='|||'
+
+          for message in $(echo "$commit_messages" | jq -r '.[]'); do
+            echo "Parsing commit message: $message"
+            if [[ "$message" =~ \[PR\ to\ branch:([^]]+)\] ]]; then
+              destination_branch="${BASH_REMATCH[1]}"
+              pr_found=true
+              break
+            fi
+          done
+
+          if [ "$pr_found" = true ]; then
+            echo "Destination branch found: $destination_branch"
+
+            # Extract the source branch name from the triggering reference
+            source_branch="${GITHUB_REF#refs/heads/}"
+            echo "Creating PR from source branch: $source_branch ..."
+
+            # Validate token and ensure required params exist
+            if [[ -z "$destination_branch" || -z "$GITHUB_TOKEN" || -z "$source_branch" ]]; then
+              echo "Invalid parameters for pull request creation. Exiting!"
+              exit 1
+            fi
+
+            # Execute GitHub API call to create pull request
+            pr_response=$(curl -sSL \
+              -X POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls \
+              -d "{\"title\":\"Auto PR: $source_branch to $destination_branch\",\"head\":\"$source_branch\",\"base\":\"$destination_branch\"}")
+
+            pr_url=$(echo "$pr_response" | jq -r '.html_url')
+            if [ "$pr_url" != "null" ]; then
+              echo "Pull request created successfully: $pr_url"
+              echo "::set-output name=pr_url::$pr_url"
+            else
+              error_message=$(echo "$pr_response" | jq -r '.message')
+              echo "Error creating pull request. Message: $error_message"
+              exit 1
+            fi
+          else
+            echo "No commit message contains '[PR to branch:<branch_name>]'. Skipping PR creation."
+          fi
+
+      - name: Handle errors gracefully
+        if: failure()
+        run: echo "An error occurred during the workflow. Check the logs for details."
