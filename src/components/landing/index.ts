@@ -1,1 +1,2 @@
-export {LandingSection} from "./LandingSection"
+export {GradientSection} from "./GradientSection";
+export {GeometricSection} from "./GeometricSection";
