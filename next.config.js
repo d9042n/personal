@@ -4,6 +4,8 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL:
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+    NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME:
+      process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME || "default",
   },
   // Add experimental features to ensure env vars are available
   experimental: {

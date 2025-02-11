@@ -19,7 +19,7 @@ const ProfileContent: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const searchParams = useSearchParams();
-  const username = searchParams.get("username") || "default";
+  const username = searchParams.get("username");
 
   const loadProfile = async () => {
     try {
@@ -116,7 +116,7 @@ const ProfileContent: React.FC = () => {
           description={profile.description}
           socialLinks={socialLinks}
           badge={profile.badge}
-          isAvailable={!!profile.badge}
+          isAvailable={profile.is_available}
         />
       ) : (
         <GeometricSection
@@ -124,7 +124,7 @@ const ProfileContent: React.FC = () => {
           title={profile.title}
           description={profile.description}
           badge={profile.badge}
-          isAvailable={!!profile.badge}
+          isAvailable={profile.is_available}
         />
       )}
     </main>

@@ -143,12 +143,42 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 The application uses the following environment variables:
 
-| Variable            | Description          | Example               |
-| ------------------- | -------------------- | --------------------- |
-| NEXT_PUBLIC_API_URL | Base URL for the API | http://localhost:8000 |
+| Variable                             | Description                  | Default Value         |
+| ------------------------------------ | ---------------------------- | --------------------- |
+| NEXT_PUBLIC_API_URL                  | Base URL for the API         | http://localhost:8000 |
+| NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME | Default username for profile | default               |
 
-Different environments (development, staging, production) use separate .env files:
+### Environment Files
 
-- `.env.development` for development
-- `.env.staging` for staging
-- `.env.production` for production
+Different environments use separate .env files:
+
+- `.env.development` - Development environment settings
+- `.env.staging` - Staging environment settings
+- `.env.production` - Production environment settings
+
+### Sample Environment File
+
+Create appropriate .env files based on your environment:
+
+```bash
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=default
+```
+
+### Setting up Environment Variables:
+
+1. Copy the appropriate sample env file:
+
+```bash
+# For development
+cp .env.development.sample .env.development
+# For staging
+cp .env.staging.sample .env.staging
+# For production
+cp .env.production.sample .env.production
+```
+
+2. Edit the copied file with your actual values:
+   - Set `NEXT_PUBLIC_API_URL` to your API endpoint
+   - Set `NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME` to your default profile

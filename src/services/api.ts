@@ -3,13 +3,16 @@
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const DEFAULT_USERNAME = process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME || 'default';
 
 // Add debug log
 console.log('API_URL:', API_URL);
+console.log('DEFAULT_USERNAME:', DEFAULT_USERNAME);
 
 export type ProfileResponse = {
   username: string;
   profile: {
+    is_available: boolean;
     name: string;
     title: string;
     badge: string;
@@ -25,9 +28,10 @@ export class ApiError extends Error {
   }
 }
 
-export const fetchProfile = async (username: string): Promise<ProfileResponse> => {
+export const fetchProfile = async (username?: string | null): Promise<ProfileResponse> => {
   try {
-    const response = await fetch(`${API_URL}/api/public/profile/${username}`);
+    const effectiveUsername = username?.trim() || DEFAULT_USERNAME;
+    const response = await fetch(`${API_URL}/api/public/profile/${effectiveUsername}`);
     
     if (!response.ok) {
       throw new ApiError(response.status, `Failed to fetch profile: ${response.statusText}`);
