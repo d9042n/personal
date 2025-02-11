@@ -40,15 +40,19 @@ export const GeometricError: React.FC<GeometricErrorProps> = ({
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#0a192f]">
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         <button
-          onClick={() => onSwitchTheme()}
-          className={`px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300`}
+          onClick={onSwitchTheme}
+          className="px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300"
         >
           Gradient
         </button>
-        <button
-          className={`px-4 py-2 rounded-lg transition-colors bg-[#64ffda] text-[#0a192f]`}
-        >
+        <button className="px-4 py-2 rounded-lg transition-colors bg-[#64ffda] text-[#0a192f]">
           Geometric
+        </button>
+        <button
+          onClick={onSwitchTheme}
+          className="px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300"
+        >
+          Minimal
         </button>
       </div>
 

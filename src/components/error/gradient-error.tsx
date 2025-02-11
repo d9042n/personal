@@ -30,16 +30,20 @@ export const GradientError: React.FC<GradientErrorProps> = ({
       )}
     >
       <div className="fixed top-4 right-4 z-50 flex gap-2">
-        <button
-          className={`px-4 py-2 rounded-lg transition-colors bg-purple-500 text-white`}
-        >
+        <button className="px-4 py-2 rounded-lg transition-colors bg-purple-500 text-white">
           Gradient
         </button>
         <button
-          onClick={() => onSwitchTheme()}
-          className={`px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300`}
+          onClick={onSwitchTheme}
+          className="px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300"
         >
           Geometric
+        </button>
+        <button
+          onClick={onSwitchTheme}
+          className="px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300"
+        >
+          Minimal
         </button>
       </div>
 

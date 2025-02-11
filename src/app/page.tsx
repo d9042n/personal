@@ -1,15 +1,25 @@
 "use client";
 
-import type { NextPage } from "next";
-import { useState, useEffect } from "react";
+import type { FC } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { GeometricSection, GradientSection } from "@/components/landing";
+import {
+  GeometricSection,
+  GradientSection,
+  MinimalSection,
+} from "@/components/landing";
 import { fetchProfile, type ProfileResponse, ApiError } from "@/services/api";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { GeometricError, GradientError } from "@/components/error";
+import {
+  GeometricError,
+  GradientError,
+  MinimalError,
+} from "@/components/error";
 
-const ProfileContent: React.FC = () => {
-  const [design, setDesign] = useState<"gradient" | "geometric">("gradient");
+const ProfileContent: FC = () => {
+  const [design, setDesign] = useState<"gradient" | "geometric" | "minimal">(
+    "gradient"
+  );
   const [profileData, setProfileData] = useState<ProfileResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +27,7 @@ const ProfileContent: React.FC = () => {
   const searchParams = useSearchParams();
   const username = searchParams.get("username");
 
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -30,46 +40,88 @@ const ProfileContent: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [username]);
 
   useEffect(() => {
     loadProfile();
-  }, [username]); // username is stable from useSearchParams
+  }, [loadProfile]);
+
+  const handleThemeSwitch = (
+    currentTheme: "gradient" | "geometric" | "minimal"
+  ) => {
+    switch (currentTheme) {
+      case "gradient":
+        setDesign("geometric");
+        break;
+      case "geometric":
+        setDesign("minimal");
+        break;
+      case "minimal":
+        setDesign("gradient");
+        break;
+    }
+  };
 
   if (loading) {
     return <LoadingSpinner />;
   }
 
   if (error) {
-    return design === "gradient" ? (
-      <GradientError
-        message={error}
-        onRetry={loadProfile}
-        onSwitchTheme={() => setDesign("geometric")}
-      />
-    ) : (
-      <GeometricError
-        message={error}
-        onRetry={loadProfile}
-        onSwitchTheme={() => setDesign("gradient")}
-      />
-    );
+    switch (design) {
+      case "gradient":
+        return (
+          <GradientError
+            message={error}
+            onRetry={loadProfile}
+            onSwitchTheme={() => handleThemeSwitch("gradient")}
+          />
+        );
+      case "geometric":
+        return (
+          <GeometricError
+            message={error}
+            onRetry={loadProfile}
+            onSwitchTheme={() => handleThemeSwitch("geometric")}
+          />
+        );
+      case "minimal":
+        return (
+          <MinimalError
+            message={error}
+            onRetry={loadProfile}
+            onSwitchTheme={() => handleThemeSwitch("minimal")}
+          />
+        );
+    }
   }
 
   if (!profileData) {
-    return design === "gradient" ? (
-      <GradientError
-        message="No profile data available"
-        onRetry={loadProfile}
-        onSwitchTheme={() => setDesign("geometric")}
-      />
-    ) : (
-      <GeometricError
-        message="No profile data available"
-        onRetry={loadProfile}
-        onSwitchTheme={() => setDesign("gradient")}
-      />
-    );
+    switch (design) {
+      case "gradient":
+        return (
+          <GradientError
+            message="No profile data available"
+            onRetry={loadProfile}
+            onSwitchTheme={() => handleThemeSwitch("gradient")}
+          />
+        );
+      case "geometric":
+        return (
+          <GeometricError
+            message="No profile data available"
+            onRetry={loadProfile}
+            onSwitchTheme={() => handleThemeSwitch("geometric")}
+          />
+        );
+      case "minimal":
+        return (
+          <MinimalError
+            message="No profile data available"
+            onRetry={loadProfile}
+            onSwitchTheme={() => handleThemeSwitch("minimal")}
+          />
+        );
+    }
   }
 
   const { profile } = profileData;
@@ -83,7 +135,7 @@ const ProfileContent: React.FC = () => {
     <main>
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         <button
-          onClick={() => setDesign("gradient")}
+          onClick={() => handleThemeSwitch("minimal")}
           className={`px-4 py-2 rounded-lg transition-colors ${
             design === "gradient"
               ? "bg-purple-500 text-white"
@@ -93,7 +145,7 @@ const ProfileContent: React.FC = () => {
           Gradient
         </button>
         <button
-          onClick={() => setDesign("geometric")}
+          onClick={() => handleThemeSwitch("gradient")}
           className={`px-4 py-2 rounded-lg transition-colors ${
             design === "geometric"
               ? "bg-[#64ffda] text-[#0a192f]"
@@ -102,30 +154,61 @@ const ProfileContent: React.FC = () => {
         >
           Geometric
         </button>
+        <button
+          onClick={() => handleThemeSwitch("geometric")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            design === "minimal"
+              ? "bg-black text-white"
+              : "bg-zinc-800 text-zinc-300"
+          }`}
+        >
+          Minimal
+        </button>
       </div>
 
-      {design === "gradient" ? (
-        <GradientSection
-          name={profile.name}
-          title={profile.title}
-          description={profile.description}
-          socialLinks={socialLinks}
-          badge={profile.badge}
-          isAvailable={profile.is_available}
-        />
-      ) : (
-        <GeometricSection
-          name={profile.name}
-          title={profile.title}
-          description={profile.description}
-          badge={profile.badge}
-          isAvailable={profile.is_available}
-        />
-      )}
+      {(() => {
+        switch (design) {
+          case "gradient":
+            return (
+              <GradientSection
+                name={profile.name}
+                title={profile.title}
+                description={profile.description}
+                socialLinks={socialLinks}
+                badge={profile.badge}
+                isAvailable={profile.is_available}
+              />
+            );
+          case "geometric":
+            return (
+              <GeometricSection
+                name={profile.name}
+                title={profile.title}
+                description={profile.description}
+                badge={profile.badge}
+                isAvailable={profile.is_available}
+              />
+            );
+          case "minimal":
+            return (
+              <MinimalSection
+                name={profile.name}
+                title={profile.title}
+                description={profile.description}
+                badge={profile.badge}
+                isAvailable={profile.is_available}
+              />
+            );
+        }
+      })()}
     </main>
   );
 };
 
 export default function HomePage() {
-  return <ProfileContent />;
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <ProfileContent />
+    </Suspense>
+  );
 }
