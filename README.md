@@ -4,7 +4,13 @@ A sleek and interactive portfolio website built with Next.js, featuring dynamic 
 
 ## 🌟 Features
 
-- **Dynamic Design Switching**: Toggle between two distinct visual styles:
+- **Dynamic Profile Loading**:
+
+  - Load profile data from API
+  - URL-based profile access (?username=xyz)
+  - Error handling and loading states
+
+- **Dynamic Design Switching**:
 
   - Gradient Design: Modern, colorful gradients with smooth animations
   - Geometric Design: Clean, minimalist design with geometric patterns
@@ -22,6 +28,7 @@ A sleek and interactive portfolio website built with Next.js, featuring dynamic 
   - Tailwind CSS for styling
   - Framer Motion for animations
   - Responsive design for all devices
+  - API integration with error handling
 
 ## 🚀 Getting Started
 
@@ -46,7 +53,22 @@ npm install
 yarn install
 ```
 
-3. Run the development server:
+3. Set up environment variables:
+
+- Copy the appropriate sample env file:
+
+```bash
+# For development
+cp .env.development.sample .env.development
+# For staging
+cp .env.staging.sample .env.staging
+# For production
+cp .env.production.sample .env.production
+```
+
+- Edit the copied file with your actual values
+
+4. Run the development server:
 
 ```bash
 npm run dev
@@ -54,7 +76,11 @@ npm run dev
 yarn dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 📝 Usage
+
+Access different profiles by using the username parameter:
 
 ## 🛠️ Built With
 
@@ -112,3 +138,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 🔧 Environment Variables
+
+The application uses the following environment variables:
+
+| Variable            | Description          | Example               |
+| ------------------- | -------------------- | --------------------- |
+| NEXT_PUBLIC_API_URL | Base URL for the API | http://localhost:8000 |
+
+Different environments (development, staging, production) use separate .env files:
+
+- `.env.development` for development
+- `.env.staging` for staging
+- `.env.production` for production

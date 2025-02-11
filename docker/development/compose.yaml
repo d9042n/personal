@@ -3,6 +3,12 @@ services:
     build:
       context: ../../
       dockerfile: docker/development/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     image: personal-development
     ports:
       - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    env_file:
+      - ../../.env.development

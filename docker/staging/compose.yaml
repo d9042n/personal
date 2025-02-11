@@ -3,6 +3,12 @@ services:
     build:
       context: ../../
       dockerfile: docker/staging/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     image: personal-staging
     ports:
       - "3002:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    env_file:
+      - ../../.env.staging
