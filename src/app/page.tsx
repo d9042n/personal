@@ -1,17 +1,13 @@
 "use client";
 
 import type { NextPage } from "next";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { GeometricSection, GradientSection } from "@/components/landing";
 import { fetchProfile, type ProfileResponse, ApiError } from "@/services/api";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { GeometricError, GradientError } from "@/components/error";
 
-// Add debug log at component level
-console.log("Environment URL:", process.env.NEXT_PUBLIC_API_URL);
-
-// Separate component for the main content to handle useSearchParams
 const ProfileContent: React.FC = () => {
   const [design, setDesign] = useState<"gradient" | "geometric">("gradient");
   const [profileData, setProfileData] = useState<ProfileResponse | null>(null);
@@ -38,8 +34,7 @@ const ProfileContent: React.FC = () => {
 
   useEffect(() => {
     loadProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username]);
+  }, [username]); // username is stable from useSearchParams
 
   if (loading) {
     return <LoadingSpinner />;
@@ -131,13 +126,6 @@ const ProfileContent: React.FC = () => {
   );
 };
 
-// Main page component with Suspense boundary
-const HomePage: NextPage = () => {
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <ProfileContent />
-    </Suspense>
-  );
-};
-
-export default HomePage;
+export default function HomePage() {
+  return <ProfileContent />;
+}

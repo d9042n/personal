@@ -7,6 +7,7 @@ const DEFAULT_USERNAME = process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME || 'de
 
 // Add debug log
 console.log('API_URL:', API_URL);
+console.log('API_URL:', process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME);
 console.log('DEFAULT_USERNAME:', DEFAULT_USERNAME);
 
 export type ProfileResponse = {
