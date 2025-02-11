@@ -27,10 +27,14 @@ COPY . .
 
 # Set default environment variables for build time
 ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ARG NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=default
+
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=$NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME
 
 # Create env file during build
 RUN echo "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL" > .env.production
+RUN echo "NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=$NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME" >> .env.production
 
 # Build the application
 RUN npm run build
@@ -40,8 +44,9 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-# Set default environment variable for runtime
-ENV NEXT_PUBLIC_API_URL=http://localhost:8000
+# Set default environment variables for runtime
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=$NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
