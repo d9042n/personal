@@ -1,34 +1,31 @@
-# Modern Portfolio Website
+# 🎨 Modern Portfolio Website
 
-A sleek and interactive portfolio website built with Next.js, featuring dynamic design switching between gradient and geometric styles. The website showcases modern web development practices with smooth animations and responsive design.
+A sleek and interactive portfolio website built with Next.js, featuring dynamic design switching between three distinct styles: Gradient, Geometric, and Minimal. This modern web application showcases best practices in React development with smooth animations and responsive design.
 
-## 🌟 Features
+## ✨ Features
 
-- **Dynamic Profile Loading**:
+### 🎯 Design Themes
 
-  - Load profile data from API
-  - URL-based profile access (?username=xyz)
-  - Error handling and loading states
+- **Gradient Design**: Modern, vibrant gradients with smooth animations
+- **Geometric Design**: Clean, minimalist design with geometric patterns
+- **Minimal Design**: Simple, elegant design with subtle animations
 
-- **Dynamic Design Switching**:
+### 🛠 Technical Features
 
-  - Gradient Design: Modern, colorful gradients with smooth animations
-  - Geometric Design: Clean, minimalist design with geometric patterns
+- Built with Next.js 14 and TypeScript
+- Server-Side Rendering (SSR) support
+- Dynamic profile loading with API integration
+- Environment-based configuration
+- Docker support for all environments
+- Responsive design for all devices
 
-- **Interactive Elements**:
+### 🎭 Interactive Elements
 
-  - Smooth animations powered by Framer Motion
-  - Responsive spotlight effects
-  - Social media integration
-  - Availability status badge
-
-- **Technical Features**:
-  - Built with Next.js 14
-  - TypeScript for type safety
-  - Tailwind CSS for styling
-  - Framer Motion for animations
-  - Responsive design for all devices
-  - API integration with error handling
+- Real-time theme switching
+- Smooth animations powered by Framer Motion
+- Dynamic spotlight effects
+- Social media integration
+- Availability status badge
 
 ## 🚀 Getting Started
 
@@ -36,16 +33,18 @@ A sleek and interactive portfolio website built with Next.js, featuring dynamic 
 
 - Node.js (v18 or higher)
 - npm or yarn
+- Docker (optional)
 
-### Installation
+### Local Development Setup
 
-1. Clone the repository:
+1. **Clone the repository**
 
 ```bash
 git clone https://github.com/yourusername/portfolio-website.git
+cd portfolio-website
 ```
 
-2. Install dependencies:
+2. **Install dependencies**
 
 ```bash
 npm install
@@ -53,22 +52,20 @@ npm install
 yarn install
 ```
 
-3. Set up environment variables:
-
-- Copy the appropriate sample env file:
+3. **Environment Setup**
 
 ```bash
 # For development
 cp .env.development.sample .env.development
+
 # For staging
 cp .env.staging.sample .env.staging
+
 # For production
 cp .env.production.sample .env.production
 ```
 
-- Edit the copied file with your actual values
-
-4. Run the development server:
+4. **Start development server**
 
 ```bash
 npm run dev
@@ -76,11 +73,73 @@ npm run dev
 yarn dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+### 🐳 Docker Setup
 
-## 📝 Usage
+#### Development
 
-Access different profiles by using the username parameter:
+```bash
+docker compose -f docker/development/compose.yaml up --build
+```
+
+#### Staging
+
+```bash
+docker compose -f docker/staging/compose.yaml up --build
+```
+
+#### Production
+
+```bash
+docker compose -f docker/production/compose.yaml up --build
+```
+
+## 🔧 Environment Configuration
+
+### Environment Variables
+
+| Variable                               | Description              | Default                 |
+| -------------------------------------- | ------------------------ | ----------------------- |
+| `NEXT_PUBLIC_API_URL`                  | API endpoint URL         | `http://localhost:8000` |
+| `NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME` | Default profile username | `default`               |
+
+### Docker Environment Variables
+
+You can override environment variables during build or runtime:
+
+```bash
+# Build with custom environment variables
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=https://api.example.com \
+  --build-arg NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=yourprofile \
+  -t your-image-name .
+
+# Run with environment variables
+docker run \
+  -e NEXT_PUBLIC_API_URL=https://api.example.com \
+  -e NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=yourprofile \
+  your-image-name
+```
+
+## 🎨 Theme Customization
+
+### Available Themes
+
+1. **Gradient Theme**
+
+   - Vibrant, modern design
+   - Animated gradient spotlights
+   - Smooth color transitions
+
+2. **Geometric Theme**
+
+   - Minimalist and clean
+   - Geometric patterns
+   - Custom spotlight effects
+
+3. **Minimal Theme**
+   - Simple and elegant
+   - Subtle animations
+   - Clean typography
 
 ## 🛠️ Built With
 
@@ -90,95 +149,57 @@ Access different profiles by using the username parameter:
 - [Framer Motion](https://www.framer.com/motion/) - Animation library
 - [Lucide Icons](https://lucide.dev/) - Icon library
 
-## 📝 Customization
-
-To customize the portfolio content, modify the following variables in `src/app/page.tsx`:
-
-```typescript
-const badge = "Available for hire";
-const name = "Your Name";
-const title = "Your Title";
-const description = "Your description";
-const socialLinks = {
-  github: "your-github-url",
-  linkedin: "your-linkedin-url",
-  twitter: "your-twitter-url",
-};
-const isAvailable = true; // Set to true/false based on availability
-```
-
 ## 📱 Responsive Design
 
 The portfolio is fully responsive and optimized for:
 
-- Mobile devices
-- Tablets
-- Desktop screens
+- 📱 Mobile devices (320px+)
+- 📱 Tablets (768px+)
+- 💻 Desktops (1024px+)
+- 🖥️ Large screens (1440px+)
 
-## 🎨 Design Modes
+## 📂 Project Structure
 
-### Gradient Mode
-
-- Modern and vibrant design
-- Animated gradient spotlights
-- Smooth color transitions
-- Social media integration
-
-### Geometric Mode
-
-- Minimalist and clean design
-- Geometric patterns and shapes
-- Custom spotlight effects
-- Focus on typography
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+```
+portfolio-website/
+├── src/
+│   ├── app/              # Next.js app directory
+│   │   └── page.tsx     # Main page component
+│   ├── components/       # React components
+│   │   ├── error/       # Error components
+│   │   ├── landing/     # Landing page components
+│   │   └── ui/          # UI components
+│   ├── lib/             # Utility functions
+│   ├── services/        # API services
+│   ├── styles/          # Global styles
+│   └── types/           # TypeScript types
+├── docker/              # Docker configurations
+│   ├── development/     # Development environment
+│   ├── staging/         # Staging environment
+│   └── production/      # Production environment
+└── public/              # Static files
+```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 🔧 Environment Variables
+## 📄 License
 
-The application uses the following environment variables:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-| Variable                             | Description                  | Default Value         |
-| ------------------------------------ | ---------------------------- | --------------------- |
-| NEXT_PUBLIC_API_URL                  | Base URL for the API         | http://localhost:8000 |
-| NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME | Default username for profile | default               |
+## 🙏 Acknowledgments
 
-### Environment Files
+- Next.js team for the amazing framework
+- Vercel for hosting solutions
+- The open-source community
 
-Different environments use separate .env files:
+---
 
-- `.env.development` - Development environment settings
-- `.env.staging` - Staging environment settings
-- `.env.production` - Production environment settings
-
-### Sample Environment File
-
-Create appropriate .env files based on your environment:
-
-```bash
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=default
-```
-
-### Setting up Environment Variables:
-
-1. Copy the appropriate sample env file:
-
-```bash
-# For development
-cp .env.development.sample .env.development
-# For staging
-cp .env.staging.sample .env.staging
-# For production
-cp .env.production.sample .env.production
-```
-
-2. Edit the copied file with your actual values:
-   - Set `NEXT_PUBLIC_API_URL` to your API endpoint
-   - Set `NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME` to your default profile
+<p align="center">
+Made with ❤️ by [Your Name]
+</p>
