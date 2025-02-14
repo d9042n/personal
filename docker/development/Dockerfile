@@ -1,6 +1,9 @@
 # syntax=docker.io/docker/dockerfile:1
 
 FROM node:18-alpine AS base
+# Add labels for better maintainability
+LABEL maintainer="Your Name <your.email@example.com>"
+LABEL description="Development image for Next.js application"
 
 # 1. Install dependencies only when needed
 FROM base AS deps
@@ -10,12 +13,21 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+COPY package*.json yarn.lock* pnpm-lock.yaml* .npmrc* ./
+# Improve dependency installation with proper error handling
 RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
-  else echo "Lockfile not found." && exit 1; \
+  if [ -f yarn.lock ]; then \
+  echo "Installing dependencies with yarn..." && \
+  yarn install --frozen-lockfile --production=false; \
+  elif [ -f package-lock.json ]; then \
+  echo "Installing dependencies with npm..." && \
+  npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then \
+  echo "Installing dependencies with pnpm..." && \
+  corepack enable pnpm && pnpm i --frozen-lockfile; \
+  else \
+  echo "No lock file found. Please provide yarn.lock, package-lock.json, or pnpm-lock.yaml" && \
+  exit 1; \
   fi
 
 # 2. Rebuild the source code only when needed
@@ -57,12 +69,17 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Development environment setup
+ENV NODE_ENV=development
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
 USER nextjs
 
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-CMD ["node", "server.js"]
+CMD ["npm", "run", "dev"]

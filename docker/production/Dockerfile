@@ -1,6 +1,8 @@
 # syntax=docker.io/docker/dockerfile:1
 
 FROM node:18-alpine AS base
+LABEL maintainer="Your Name <your.email@example.com>"
+LABEL description="Production image for Next.js application"
 
 # 1. Install dependencies only when needed
 FROM base AS deps
