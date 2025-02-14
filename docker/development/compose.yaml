@@ -9,7 +9,7 @@ services:
     image: personal-development
     container_name: personal-development
     ports:
-      - "3001:3000"
+      - "3002:3000"
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
