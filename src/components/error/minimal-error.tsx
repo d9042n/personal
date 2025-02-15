@@ -14,15 +14,15 @@ const inter = Inter({
 type MinimalErrorProps = {
   message: string;
   onRetry: () => void;
-  onSwitchTheme: () => void;
-  design: string;
+  onSwitchTheme: (theme: "gradient" | "geometric" | "minimal") => void;
+  currentTheme: "gradient" | "geometric" | "minimal";
 };
 
 export const MinimalError: React.FC<MinimalErrorProps> = ({
   message,
   onRetry,
   onSwitchTheme,
-  design,
+  currentTheme,
 }) => {
   return (
     <div
@@ -33,9 +33,9 @@ export const MinimalError: React.FC<MinimalErrorProps> = ({
     >
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         <button
-          onClick={onSwitchTheme}
+          onClick={() => onSwitchTheme("gradient")}
           className={`px-4 py-2 rounded-lg transition-colors ${
-            design === "gradient"
+            currentTheme === "gradient"
               ? "bg-purple-500 text-white"
               : "bg-zinc-800 text-zinc-300"
           }`}
@@ -43,9 +43,9 @@ export const MinimalError: React.FC<MinimalErrorProps> = ({
           Gradient
         </button>
         <button
-          onClick={onSwitchTheme}
+          onClick={() => onSwitchTheme("geometric")}
           className={`px-4 py-2 rounded-lg transition-colors ${
-            design === "geometric"
+            currentTheme === "geometric"
               ? "bg-[#64ffda] text-[#0a192f]"
               : "bg-zinc-800 text-zinc-300"
           }`}
@@ -53,9 +53,9 @@ export const MinimalError: React.FC<MinimalErrorProps> = ({
           Geometric
         </button>
         <button
-          onClick={onSwitchTheme}
+          onClick={() => onSwitchTheme("minimal")}
           className={`px-4 py-2 rounded-lg transition-colors ${
-            design === "minimal"
+            currentTheme === "minimal"
               ? "bg-black text-white"
               : "bg-zinc-800 text-zinc-300"
           }`}

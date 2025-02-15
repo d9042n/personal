@@ -15,13 +15,15 @@ const firaCode = Fira_Code({
 type GeometricErrorProps = {
   message: string;
   onRetry: () => void;
-  onSwitchTheme: () => void;
+  onSwitchTheme: (theme: "gradient" | "geometric" | "minimal") => void;
+  currentTheme: "gradient" | "geometric" | "minimal";
 };
 
 export const GeometricError: React.FC<GeometricErrorProps> = ({
   message,
   onRetry,
   onSwitchTheme,
+  currentTheme,
 }) => {
   const fadeUpVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -40,17 +42,32 @@ export const GeometricError: React.FC<GeometricErrorProps> = ({
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#0a192f]">
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         <button
-          onClick={onSwitchTheme}
-          className="px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300"
+          onClick={() => onSwitchTheme("gradient")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            currentTheme === "gradient"
+              ? "bg-purple-500 text-white"
+              : "bg-zinc-800 text-zinc-300"
+          }`}
         >
           Gradient
         </button>
-        <button className="px-4 py-2 rounded-lg transition-colors bg-[#64ffda] text-[#0a192f]">
+        <button
+          onClick={() => onSwitchTheme("geometric")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            currentTheme === "geometric"
+              ? "bg-[#64ffda] text-[#0a192f]"
+              : "bg-zinc-800 text-zinc-300"
+          }`}
+        >
           Geometric
         </button>
         <button
-          onClick={onSwitchTheme}
-          className="px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300"
+          onClick={() => onSwitchTheme("minimal")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            currentTheme === "minimal"
+              ? "bg-black text-white"
+              : "bg-zinc-800 text-zinc-300"
+          }`}
         >
           Minimal
         </button>

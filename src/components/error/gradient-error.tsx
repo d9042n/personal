@@ -14,13 +14,15 @@ const spaceGrotesk = Space_Grotesk({
 type GradientErrorProps = {
   message: string;
   onRetry: () => void;
-  onSwitchTheme: () => void;
+  onSwitchTheme: (theme: "gradient" | "geometric" | "minimal") => void;
+  currentTheme: "gradient" | "geometric" | "minimal";
 };
 
 export const GradientError: React.FC<GradientErrorProps> = ({
   message,
   onRetry,
   onSwitchTheme,
+  currentTheme,
 }) => {
   return (
     <section
@@ -30,18 +32,33 @@ export const GradientError: React.FC<GradientErrorProps> = ({
       )}
     >
       <div className="fixed top-4 right-4 z-50 flex gap-2">
-        <button className="px-4 py-2 rounded-lg transition-colors bg-purple-500 text-white">
+        <button
+          onClick={() => onSwitchTheme("gradient")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            currentTheme === "gradient"
+              ? "bg-purple-500 text-white"
+              : "bg-zinc-800 text-zinc-300"
+          }`}
+        >
           Gradient
         </button>
         <button
-          onClick={onSwitchTheme}
-          className="px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300"
+          onClick={() => onSwitchTheme("geometric")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            currentTheme === "geometric"
+              ? "bg-[#64ffda] text-[#0a192f]"
+              : "bg-zinc-800 text-zinc-300"
+          }`}
         >
           Geometric
         </button>
         <button
-          onClick={onSwitchTheme}
-          className="px-4 py-2 rounded-lg transition-colors bg-zinc-800 text-zinc-300"
+          onClick={() => onSwitchTheme("minimal")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            currentTheme === "minimal"
+              ? "bg-black text-white"
+              : "bg-zinc-800 text-zinc-300"
+          }`}
         >
           Minimal
         </button>

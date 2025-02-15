@@ -47,19 +47,9 @@ const ProfileContent: FC = () => {
   }, [loadProfile]);
 
   const handleThemeSwitch = (
-    currentTheme: "gradient" | "geometric" | "minimal"
+    newTheme: "gradient" | "geometric" | "minimal"
   ) => {
-    switch (currentTheme) {
-      case "gradient":
-        setDesign("geometric");
-        break;
-      case "geometric":
-        setDesign("minimal");
-        break;
-      case "minimal":
-        setDesign("gradient");
-        break;
-    }
+    setDesign(newTheme);
   };
 
   if (loading) {
@@ -73,7 +63,8 @@ const ProfileContent: FC = () => {
           <GradientError
             message={error}
             onRetry={loadProfile}
-            onSwitchTheme={() => handleThemeSwitch("gradient")}
+            onSwitchTheme={handleThemeSwitch}
+            currentTheme={design}
           />
         );
       case "geometric":
@@ -81,7 +72,8 @@ const ProfileContent: FC = () => {
           <GeometricError
             message={error}
             onRetry={loadProfile}
-            onSwitchTheme={() => handleThemeSwitch("geometric")}
+            onSwitchTheme={handleThemeSwitch}
+            currentTheme={design}
           />
         );
       case "minimal":
@@ -89,7 +81,8 @@ const ProfileContent: FC = () => {
           <MinimalError
             message={error}
             onRetry={loadProfile}
-            onSwitchTheme={() => handleThemeSwitch("minimal")}
+            onSwitchTheme={handleThemeSwitch}
+            currentTheme={design}
           />
         );
     }
@@ -102,7 +95,8 @@ const ProfileContent: FC = () => {
           <GradientError
             message="No profile data available"
             onRetry={loadProfile}
-            onSwitchTheme={() => handleThemeSwitch("gradient")}
+            onSwitchTheme={handleThemeSwitch}
+            currentTheme={design}
           />
         );
       case "geometric":
@@ -110,7 +104,8 @@ const ProfileContent: FC = () => {
           <GeometricError
             message="No profile data available"
             onRetry={loadProfile}
-            onSwitchTheme={() => handleThemeSwitch("geometric")}
+            onSwitchTheme={handleThemeSwitch}
+            currentTheme={design}
           />
         );
       case "minimal":
@@ -118,7 +113,8 @@ const ProfileContent: FC = () => {
           <MinimalError
             message="No profile data available"
             onRetry={loadProfile}
-            onSwitchTheme={() => handleThemeSwitch("minimal")}
+            onSwitchTheme={handleThemeSwitch}
+            currentTheme={design}
           />
         );
     }
