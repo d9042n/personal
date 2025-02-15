@@ -15,16 +15,19 @@ development-logs:
 	docker compose -f docker/development/compose.yaml logs -f
 
 development-shell:
-	docker compose -f docker/development/compose.yaml exec web sh
+	docker compose -f docker/development/compose.yaml exec personal-development sh
 
 development-lint:
-	docker compose -f docker/development/compose.yaml exec web npm run lint
+	docker compose -f docker/development/compose.yaml exec personal-development npm run lint
 
 development-test:
-	docker compose -f docker/development/compose.yaml exec web npm run test
+	docker compose -f docker/development/compose.yaml exec personal-development npm run test
 
 development-format:
-	docker compose -f docker/development/compose.yaml exec web npm run format
+	docker compose -f docker/development/compose.yaml exec personal-development npm run format
+
+development-env:
+	docker compose -f docker/development/compose.yaml exec personal-development env
 
 # Staging environment
 staging-build:
@@ -96,6 +99,7 @@ help:
 	@echo "  development-lint    - Run linter in development"
 	@echo "  development-test    - Run tests in development"
 	@echo "  development-format  - Format code in development"
+	@echo "  development-env     - View development environment variables"
 	@echo ""
 	@echo "Staging:"
 	@echo "  staging-build      - Build staging environment"
@@ -125,7 +129,7 @@ help:
 	@echo "  clean          - Remove unused Docker resources"
 
 .PHONY: development-build development-up development-up-d development-down development-logs development-shell \
-	development-lint development-test development-format \
+	development-lint development-test development-format development-env \
 	staging-build staging-up staging-up-d staging-down staging-logs staging-lint \
 	production-build production-up production-down production-logs \
 	test test-coverage test-e2e lint format type-check clean help

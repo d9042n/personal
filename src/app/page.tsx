@@ -135,7 +135,7 @@ const ProfileContent: FC = () => {
     <main>
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         <button
-          onClick={() => handleThemeSwitch("minimal")}
+          onClick={() => handleThemeSwitch("gradient")}
           className={`px-4 py-2 rounded-lg transition-colors ${
             design === "gradient"
               ? "bg-purple-500 text-white"
@@ -145,7 +145,7 @@ const ProfileContent: FC = () => {
           Gradient
         </button>
         <button
-          onClick={() => handleThemeSwitch("gradient")}
+          onClick={() => handleThemeSwitch("geometric")}
           className={`px-4 py-2 rounded-lg transition-colors ${
             design === "geometric"
               ? "bg-[#64ffda] text-[#0a192f]"
@@ -155,7 +155,7 @@ const ProfileContent: FC = () => {
           Geometric
         </button>
         <button
-          onClick={() => handleThemeSwitch("geometric")}
+          onClick={() => handleThemeSwitch("minimal")}
           className={`px-4 py-2 rounded-lg transition-colors ${
             design === "minimal"
               ? "bg-black text-white"
