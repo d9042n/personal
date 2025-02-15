@@ -17,6 +17,18 @@ import {
 } from "@/components/error";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
+const ERROR_COMPONENTS = {
+  gradient: GradientError,
+  geometric: GeometricError,
+  minimal: MinimalError,
+} as const;
+
+const SECTION_COMPONENTS = {
+  gradient: GradientSection,
+  geometric: GeometricSection,
+  minimal: MinimalSection,
+} as const;
+
 const ProfileContent: FC = () => {
   const [design, setDesign] = useState<Theme>("gradient");
   const searchParams = useSearchParams();
@@ -24,18 +36,16 @@ const ProfileContent: FC = () => {
 
   const { profileData, error, loading, loadProfile } = useProfile(username);
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
-  if (error) {
-    const ErrorComponent = {
-      gradient: GradientError,
-      geometric: GeometricError,
-      minimal: MinimalError,
-    }[design];
+  const ErrorComponent = ERROR_COMPONENTS[design];
 
+  if (error || !profileData) {
     return (
       <ErrorComponent
-        message={error}
+        message={error ?? "No profile data available"}
         onRetry={loadProfile}
         onSwitchTheme={setDesign}
         currentTheme={design}
@@ -43,39 +53,12 @@ const ProfileContent: FC = () => {
     );
   }
 
-  if (!profileData) {
-    const ErrorComponent = {
-      gradient: GradientError,
-      geometric: GeometricError,
-      minimal: MinimalError,
-    }[design];
-
-    return (
-      <ErrorComponent
-        message="No profile data available"
-        onRetry={loadProfile}
-        onSwitchTheme={setDesign}
-        currentTheme={design}
-      />
-    );
-  }
-
-  const { profile } = profileData;
+  const SectionComponent = SECTION_COMPONENTS[design];
 
   return (
     <main>
       <ThemeSwitcher currentTheme={design} onThemeChange={setDesign} />
-
-      {(() => {
-        switch (design) {
-          case "gradient":
-            return <GradientSection {...profile} />;
-          case "geometric":
-            return <GeometricSection {...profile} />;
-          case "minimal":
-            return <MinimalSection {...profile} />;
-        }
-      })()}
+      <SectionComponent {...profileData.profile} />
     </main>
   );
 };

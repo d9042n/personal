@@ -31,18 +31,18 @@ export const fetchProfile = async (username?: string | null): Promise<ProfileRes
     const response = await fetch(`${API_URL}/api/profiles/${effectiveUsername}`);
     
     if (!response.ok) {
-      throw new ApiError(
-        response.status,
-        `Failed to fetch profile: ${response.statusText}`
-      );
+      const errorMessage = `Failed to fetch profile: ${response.statusText}`;
+      throw new ApiError(response.status, errorMessage);
     }
     
-    const data = await response.json();
-    return data;
+    return response.json();
   } catch (error) {
+    // Re-throw ApiError instances
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError(500, 'Failed to fetch profile data');
+    // Convert other errors to ApiError
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch profile data';
+    throw new ApiError(500, errorMessage);
   }
 };
