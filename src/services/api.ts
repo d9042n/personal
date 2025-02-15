@@ -2,8 +2,10 @@
  * API service for profile data
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const DEFAULT_USERNAME = process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME || 'default';
+import { ProfileData } from "@/types/theme";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+const DEFAULT_USERNAME = process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME ?? 'default';
 
 // Add debug log
 console.log('API_URL:', API_URL);
@@ -12,14 +14,7 @@ console.log('DEFAULT_USERNAME:', DEFAULT_USERNAME);
 
 export type ProfileResponse = {
   username: string;
-  profile: {
-    is_available: boolean;
-    name: string;
-    title: string;
-    badge: string;
-    description: string;
-    github: string;
-  };
+  profile: ProfileData;
 };
 
 export class ApiError extends Error {
@@ -30,19 +25,24 @@ export class ApiError extends Error {
 }
 
 export const fetchProfile = async (username?: string | null): Promise<ProfileResponse> => {
+  const effectiveUsername = username?.trim() || DEFAULT_USERNAME;
+  
   try {
-    const effectiveUsername = username?.trim() || DEFAULT_USERNAME;
-    const response = await fetch(`${API_URL}/api/public/profile/${effectiveUsername}`);
+    const response = await fetch(`${API_URL}/api/profiles/${effectiveUsername}`);
     
     if (!response.ok) {
-      throw new ApiError(response.status, `Failed to fetch profile: ${response.statusText}`);
+      throw new ApiError(
+        response.status,
+        `Failed to fetch profile: ${response.statusText}`
+      );
     }
     
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
     }
     throw new ApiError(500, 'Failed to fetch profile data');
   }
-}; 
+};
