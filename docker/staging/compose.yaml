@@ -3,6 +3,14 @@ services:
     build:
       context: ../../
       dockerfile: docker/staging/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME: ${NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME:-default}
     image: personal-staging
     ports:
-      - "3002:3000"
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=${NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME:-default}
+    env_file:
+      - ../../.env.staging
