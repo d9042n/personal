@@ -60,9 +60,15 @@ staging-lint:
 
 # Production environment
 production-build:
-	docker compose -f docker/production/compose.yaml build
+	docker compose -f docker/production/compose.yaml build --no-cache
 
-production-up:
+production-env-setup:
+	@if [ ! -f .env.production ]; then \
+		cp .env.production.sample .env.production; \
+		echo "Created .env.production file. Please update the values."; \
+	fi
+
+production-up: production-env-setup
 	docker compose -f docker/production/compose.yaml up -d
 
 production-down:
@@ -70,6 +76,16 @@ production-down:
 
 production-logs:
 	docker compose -f docker/production/compose.yaml logs -f
+
+production-prune:
+	docker system prune -f
+
+# Combined commands
+production-deploy: production-env-setup production-build production-up
+
+# Health check
+production-health:
+	@curl -s http://localhost:3000/api/health || echo "Service is not responding"
 
 # Testing
 test:
@@ -141,7 +157,7 @@ help:
 .PHONY: development-build development-up development-up-d development-down development-logs development-shell \
 	development-lint development-test development-format development-env \
 	staging-build staging-up staging-up-d staging-down staging-logs staging-lint \
-	production-build production-up production-down production-logs \
+	production-build production-env-setup production-up production-down production-logs production-prune production-deploy production-health \
 	test test-coverage test-e2e lint format type-check clean help
 
 .DEFAULT_GOAL := help
