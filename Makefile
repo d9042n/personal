@@ -1,12 +1,22 @@
 # Development environment
 development-build:
-	docker compose -f docker/development/compose.yaml build
+	docker compose -f docker/development/compose.yaml build --no-cache
 
 development-up:
 	docker compose -f docker/development/compose.yaml up
 
 development-up-d:
 	docker compose -f docker/development/compose.yaml up -d
+
+# Add a new target to create development env file if it doesn't exist
+development-env-setup:
+	@if [ ! -f .env.development ]; then \
+		cp .env.development.sample .env.development; \
+		echo "Created .env.development file. Please update the values."; \
+	fi
+
+# Update the development-up target to depend on env setup
+development: development-env-setup development-up
 
 development-down:
 	docker compose -f docker/development/compose.yaml down

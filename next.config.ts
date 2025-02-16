@@ -1,21 +1,23 @@
-import type { NextConfig } from "next";
+import type { WebpackConfigContext } from 'next/dist/server/config-shared';
+import type { Configuration as WebpackConfig } from 'webpack';
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   output: "standalone",
-  env: {
-    NEXT_PUBLIC_API_URL:
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
-    NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME:
-      process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME || "default",
-  },
   experimental: {
     esmExternals: true,
   },
-  webpack: (config, { isServer }) => {
+  webpack: (
+    config: WebpackConfig,
+    { isServer }: WebpackConfigContext
+  ): WebpackConfig => {
     if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
+      config.resolve = {
+        ...config.resolve,
+        fallback: {
+          ...(config.resolve?.fallback || {}),
+          fs: false,
+        },
       };
     }
     return config;
