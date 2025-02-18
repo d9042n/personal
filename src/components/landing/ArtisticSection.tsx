@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Inter } from "next/font/google";
+import { Playfair_Display, Montserrat } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { ArtisticShape } from "./artistic-shape";
 import {
   Github,
   Linkedin,
@@ -16,14 +17,18 @@ import {
   Globe, // for Portfolio
   PenTool, // for Dev.to
 } from "lucide-react";
-import { MinimalShape } from "./minimal-shape";
 
-const inter = Inter({
+const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-playfair-display",
 });
 
-type MinimalSectionProps = {
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+});
+
+type ArtisticSectionProps = {
   badge?: string;
   name?: string;
   title?: string;
@@ -44,7 +49,7 @@ type MinimalSectionProps = {
   };
 };
 
-export const MinimalSection: React.FC<MinimalSectionProps> = ({
+export const ArtisticSection: React.FC<ArtisticSectionProps> = ({
   badge = "",
   name = "",
   title = "",
@@ -53,13 +58,13 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
   socialLinks = {},
 }) => {
   const fadeUpVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30 },
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.8,
-        delay: 0.3 + i * 0.2,
+        duration: 1,
+        delay: 0.5 + i * 0.2,
         ease: [0.25, 0.4, 0.25, 1],
       },
     }),
@@ -68,26 +73,52 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
   return (
     <div
       className={cn(
-        "relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-white",
-        inter.className
+        "relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#1a0b2e]",
+        montserrat.variable
       )}
     >
+      <div className="absolute inset-0 bg-gradient-to-br from-[#7928ca]/[0.15] via-transparent to-[#ff0080]/[0.15] blur-3xl" />
+
       <div className="absolute inset-0 overflow-hidden">
-        <MinimalShape delay={0.2} size={200} className="left-[10%] top-[20%]" />
-        <MinimalShape
-          delay={0.4}
-          size={150}
-          className="right-[15%] top-[15%]"
-        />
-        <MinimalShape
+        <ArtisticShape
           delay={0.3}
-          size={180}
-          className="left-[20%] bottom-[15%]"
+          width={300}
+          height={300}
+          rotate={12}
+          gradient="from-[#7928ca]/[0.3]"
+          className="left-[-5%] md:left-[5%] top-[15%] md:top-[20%]"
         />
-        <MinimalShape
+        <ArtisticShape
           delay={0.5}
-          size={120}
-          className="right-[25%] bottom-[20%]"
+          width={250}
+          height={250}
+          rotate={-15}
+          gradient="from-[#ff0080]/[0.3]"
+          className="right-[-5%] md:right-[5%] top-[60%] md:top-[65%]"
+        />
+        <ArtisticShape
+          delay={0.4}
+          width={200}
+          height={200}
+          rotate={-8}
+          gradient="from-[#00d4ff]/[0.3]"
+          className="left-[10%] md:left-[15%] bottom-[10%] md:bottom-[15%]"
+        />
+        <ArtisticShape
+          delay={0.6}
+          width={150}
+          height={150}
+          rotate={20}
+          gradient="from-[#ff4d4d]/[0.3]"
+          className="right-[20%] md:right-[25%] top-[5%] md:top-[10%]"
+        />
+        <ArtisticShape
+          delay={0.7}
+          width={100}
+          height={100}
+          rotate={-25}
+          gradient="from-[#f9cb28]/[0.3]"
+          className="left-[25%] md:left-[30%] top-[10%] md:top-[15%]"
         />
       </div>
 
@@ -99,9 +130,9 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
               variants={fadeUpVariants}
               initial="hidden"
               animate="visible"
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 mb-8 md:mb-12"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.1] mb-8 md:mb-12"
             >
-              <span className="text-sm text-gray-600 tracking-wide font-medium">
+              <span className="text-sm text-[#f9cb28] tracking-wide font-semibold">
                 {badge}
               </span>
             </motion.div>
@@ -113,10 +144,20 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
             initial="hidden"
             animate="visible"
           >
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6 md:mb-8 tracking-tight">
-              <span className="text-gray-900">{name}</span>
+            <h1
+              className={cn(
+                "text-5xl sm:text-7xl md:text-8xl font-bold mb-6 md:mb-8 tracking-tight",
+                playfairDisplay.variable,
+                playfairDisplay.className
+              )}
+            >
+              <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
+                {name}
+              </span>
               <br />
-              <span className="text-gray-700">{title}</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#7928ca] via-[#ff0080] to-[#ff4d4d]">
+                {title}
+              </span>
             </h1>
           </motion.div>
 
@@ -126,7 +167,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
             initial="hidden"
             animate="visible"
           >
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 leading-relaxed font-light tracking-wide max-w-xl mx-auto px-4">
+            <p className="text-base sm:text-lg md:text-xl text-white/60 mb-8 leading-relaxed font-light tracking-wide max-w-xl mx-auto px-4">
               {description}
             </p>
           </motion.div>
@@ -142,7 +183,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="GitHub"
               >
                 <Github className="w-6 h-6" />
@@ -153,7 +194,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="LinkedIn"
               >
                 <Linkedin className="w-6 h-6" />
@@ -164,7 +205,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="Twitter"
               >
                 <Twitter className="w-6 h-6" />
@@ -175,7 +216,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="Facebook"
               >
                 <Facebook className="w-6 h-6" />
@@ -186,7 +227,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.leetcode}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="LeetCode"
               >
                 <FileCode2 className="w-6 h-6" />
@@ -197,7 +238,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.hackerrank}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="HackerRank"
               >
                 <Code2 className="w-6 h-6" />
@@ -208,7 +249,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.medium}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="Medium"
               >
                 <BookOpen className="w-6 h-6" />
@@ -219,7 +260,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.stackoverflow}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="Stack Overflow"
               >
                 <MessageSquare className="w-6 h-6" />
@@ -230,7 +271,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.portfolio}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="Portfolio"
               >
                 <Globe className="w-6 h-6" />
@@ -241,7 +282,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="YouTube"
               >
                 <Youtube className="w-6 h-6" />
@@ -252,7 +293,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
                 href={socialLinks.devto}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
                 title="Dev.to"
               >
                 <PenTool className="w-6 h-6" />
@@ -261,6 +302,8 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
           </motion.div>
         </div>
       </div>
+
+      <div className="absolute inset-0 bg-gradient-to-t from-[#1a0b2e] via-transparent to-[#1a0b2e]/80 pointer-events-none" />
     </div>
   );
 };

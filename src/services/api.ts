@@ -2,7 +2,7 @@
  * API service for profile data
  */
 
-import { ProfileData } from "@/types/theme";
+import { ProfileResponse } from "@/types/theme";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const DEFAULT_USERNAME = process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME ?? 'default';
@@ -40,11 +40,9 @@ export const fetchProfile = async (username?: string | null): Promise<ProfileRes
     
     return response.json();
   } catch (error) {
-    // Re-throw ApiError instances
     if (error instanceof ApiError) {
       throw error;
     }
-    // Convert other errors to ApiError
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch profile data';
     throw new ApiError(500, errorMessage);
   }
