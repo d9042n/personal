@@ -7,34 +7,30 @@ import { useProfile } from "@/hooks/useProfile";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import {
   GeometricSection,
-  GradientSection,
   MinimalSection,
   ArtisticSection,
 } from "@/components/landing";
 import {
   GeometricError,
-  GradientError,
   MinimalError,
   ArtisticError,
 } from "@/components/error";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const ERROR_COMPONENTS = {
-  gradient: GradientError,
   geometric: GeometricError,
   minimal: MinimalError,
   artistic: ArtisticError,
 } as const;
 
 const SECTION_COMPONENTS = {
-  gradient: GradientSection,
   geometric: GeometricSection,
   minimal: MinimalSection,
   artistic: ArtisticSection,
 } as const;
 
 const ProfileContent: FC = () => {
-  const [design, setDesign] = useState<Theme>("gradient");
+  const [design, setDesign] = useState<Theme>("geometric");
   const searchParams = useSearchParams();
   const username = searchParams.get("username");
 
@@ -62,7 +58,14 @@ const ProfileContent: FC = () => {
   return (
     <main>
       <ThemeSwitcher currentTheme={design} onThemeChange={setDesign} />
-      <SectionComponent {...profileData.profile} />
+      <SectionComponent
+        isAvailable={profileData.profile.is_available}
+        badge={profileData.profile.badge}
+        name={profileData.profile.name}
+        title={profileData.profile.title}
+        description={profileData.profile.description}
+        socialLinks={profileData.profile.social_links}
+      />
     </main>
   );
 };

@@ -3,7 +3,19 @@
 import { motion } from "framer-motion";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
+import {
+  Github,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Youtube,
+  FileCode2, // for LeetCode
+  Code2, // for HackerRank
+  BookOpen, // for Medium
+  MessageSquare, // for Stack Overflow
+  Globe, // for Portfolio
+  PenTool, // for Dev.to
+} from "lucide-react";
 import { MinimalShape } from "./minimal-shape";
 
 const inter = Inter({
@@ -17,6 +29,19 @@ type MinimalSectionProps = {
   title?: string;
   description?: string;
   isAvailable?: boolean;
+  socialLinks?: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+    leetcode?: string;
+    hackerrank?: string;
+    medium?: string;
+    stackoverflow?: string;
+    portfolio?: string;
+    youtube?: string;
+    devto?: string;
+  };
 };
 
 export const MinimalSection: React.FC<MinimalSectionProps> = ({
@@ -25,6 +50,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
   title = "",
   description = "",
   isAvailable = false,
+  socialLinks = {},
 }) => {
   const fadeUpVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -106,15 +132,132 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
           </motion.div>
 
           <motion.div
-            custom={3}
-            variants={fadeUpVariants}
-            initial="hidden"
-            animate="visible"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
+            className="mt-12 flex flex-wrap gap-6 justify-center"
           >
-            <button className="px-6 py-3 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-300 flex items-center justify-center mx-auto">
-              Explore My Work
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </button>
+            {socialLinks.github && (
+              <a
+                href={socialLinks.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="GitHub"
+              >
+                <Github className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.linkedin && (
+              <a
+                href={socialLinks.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="LinkedIn"
+              >
+                <Linkedin className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.twitter && (
+              <a
+                href={socialLinks.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="Twitter"
+              >
+                <Twitter className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.facebook && (
+              <a
+                href={socialLinks.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="Facebook"
+              >
+                <Facebook className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.leetcode && (
+              <a
+                href={socialLinks.leetcode}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="LeetCode"
+              >
+                <FileCode2 className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.hackerrank && (
+              <a
+                href={socialLinks.hackerrank}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="HackerRank"
+              >
+                <Code2 className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.medium && (
+              <a
+                href={socialLinks.medium}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="Medium"
+              >
+                <BookOpen className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.stackoverflow && (
+              <a
+                href={socialLinks.stackoverflow}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="Stack Overflow"
+              >
+                <MessageSquare className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.portfolio && (
+              <a
+                href={socialLinks.portfolio}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="Portfolio"
+              >
+                <Globe className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.youtube && (
+              <a
+                href={socialLinks.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="YouTube"
+              >
+                <Youtube className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.devto && (
+              <a
+                href={socialLinks.devto}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-900 transition-colors duration-300"
+                title="Dev.to"
+              >
+                <PenTool className="w-6 h-6" />
+              </a>
+            )}
           </motion.div>
         </div>
       </div>

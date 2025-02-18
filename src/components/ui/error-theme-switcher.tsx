@@ -12,16 +12,6 @@ export const ErrorThemeSwitcher: React.FC<ErrorThemeSwitcherProps> = ({
   return (
     <div className="fixed top-4 right-4 z-50 flex gap-2">
       <button
-        onClick={() => onSwitchTheme("gradient")}
-        className={`px-4 py-2 rounded-lg transition-colors ${
-          currentTheme === "gradient"
-            ? "bg-purple-500 text-white"
-            : "bg-zinc-800 text-zinc-300"
-        }`}
-      >
-        Gradient
-      </button>
-      <button
         onClick={() => onSwitchTheme("geometric")}
         className={`px-4 py-2 rounded-lg transition-colors ${
           currentTheme === "geometric"

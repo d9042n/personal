@@ -4,6 +4,19 @@ import { motion } from "framer-motion";
 import { Playfair_Display, Montserrat } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ArtisticShape } from "./artistic-shape";
+import {
+  Github,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Youtube,
+  FileCode2, // for LeetCode
+  Code2, // for HackerRank
+  BookOpen, // for Medium
+  MessageSquare, // for Stack Overflow
+  Globe, // for Portfolio
+  PenTool, // for Dev.to
+} from "lucide-react";
 
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
@@ -21,6 +34,19 @@ type ArtisticSectionProps = {
   title?: string;
   description?: string;
   isAvailable?: boolean;
+  socialLinks?: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+    leetcode?: string;
+    hackerrank?: string;
+    medium?: string;
+    stackoverflow?: string;
+    portfolio?: string;
+    youtube?: string;
+    devto?: string;
+  };
 };
 
 export const ArtisticSection: React.FC<ArtisticSectionProps> = ({
@@ -29,6 +55,7 @@ export const ArtisticSection: React.FC<ArtisticSectionProps> = ({
   title = "",
   description = "",
   isAvailable = false,
+  socialLinks = {},
 }) => {
   const fadeUpVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -146,14 +173,132 @@ export const ArtisticSection: React.FC<ArtisticSectionProps> = ({
           </motion.div>
 
           <motion.div
-            custom={3}
-            variants={fadeUpVariants}
-            initial="hidden"
-            animate="visible"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
+            className="mt-12 flex flex-wrap gap-6 justify-center"
           >
-            <button className="px-8 py-4 bg-gradient-to-r from-[#7928ca] to-[#ff0080] text-white rounded-full hover:opacity-90 transition-opacity duration-300 font-semibold text-lg shadow-lg">
-              Explore Gallery
-            </button>
+            {socialLinks.github && (
+              <a
+                href={socialLinks.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="GitHub"
+              >
+                <Github className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.linkedin && (
+              <a
+                href={socialLinks.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="LinkedIn"
+              >
+                <Linkedin className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.twitter && (
+              <a
+                href={socialLinks.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="Twitter"
+              >
+                <Twitter className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.facebook && (
+              <a
+                href={socialLinks.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="Facebook"
+              >
+                <Facebook className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.leetcode && (
+              <a
+                href={socialLinks.leetcode}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="LeetCode"
+              >
+                <FileCode2 className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.hackerrank && (
+              <a
+                href={socialLinks.hackerrank}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="HackerRank"
+              >
+                <Code2 className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.medium && (
+              <a
+                href={socialLinks.medium}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="Medium"
+              >
+                <BookOpen className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.stackoverflow && (
+              <a
+                href={socialLinks.stackoverflow}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="Stack Overflow"
+              >
+                <MessageSquare className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.portfolio && (
+              <a
+                href={socialLinks.portfolio}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="Portfolio"
+              >
+                <Globe className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.youtube && (
+              <a
+                href={socialLinks.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="YouTube"
+              >
+                <Youtube className="w-6 h-6" />
+              </a>
+            )}
+            {socialLinks.devto && (
+              <a
+                href={socialLinks.devto}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ff6b6b] transition-colors duration-300"
+                title="Dev.to"
+              >
+                <PenTool className="w-6 h-6" />
+              </a>
+            )}
           </motion.div>
         </div>
       </div>
