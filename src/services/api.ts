@@ -14,11 +14,6 @@ console.log('API Configuration:', {
   ENV_USERNAME: process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME
 });
 
-export type ProfileResponse = {
-  username: string;
-  profile: ProfileData;
-};
-
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);

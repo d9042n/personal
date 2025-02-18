@@ -5,7 +5,7 @@ import { Fira_Code } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { GeometricSpotlight } from "../landing/geometric-spotlight";
-import { Theme } from "@/types";
+import { ErrorComponentProps } from "@/types/theme";
 import { ErrorThemeSwitcher } from "../ui/error-theme-switcher";
 
 const firaCode = Fira_Code({
@@ -14,14 +14,7 @@ const firaCode = Fira_Code({
   variable: "--font-fira-code",
 });
 
-type GeometricErrorProps = {
-  message: string;
-  onRetry: () => void;
-  onSwitchTheme: (theme: Theme) => void;
-  currentTheme: Theme;
-};
-
-export const GeometricError: React.FC<GeometricErrorProps> = ({
+export const GeometricError: React.FC<ErrorComponentProps> = ({
   message,
   onRetry,
   onSwitchTheme,

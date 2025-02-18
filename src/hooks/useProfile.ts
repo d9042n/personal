@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { fetchProfile, ProfileResponse, ApiError } from "@/services/api";
+import { fetchProfile, ApiError } from "@/services/api";
+import { ProfileResponse } from "@/types/theme";
 
 export const useProfile = (username: string | null) => {
   const [state, setState] = useState<{
@@ -13,14 +14,16 @@ export const useProfile = (username: string | null) => {
   });
 
   const loadProfile = useCallback(async () => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
-    
+    setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const profileData = await fetchProfile(username);
-      setState({ profileData, error: null, loading: false });
-    } catch (err) {
-      const errorMessage = err instanceof ApiError ? err.message : "Failed to load profile";
-      setState({ profileData: null, error: errorMessage, loading: false });
+      const data = await fetchProfile(username);
+      setState({ profileData: data, error: null, loading: false });
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? `Error ${error.status}: ${error.message}`
+          : "An unexpected error occurred";
+      setState({ profileData: null, error: message, loading: false });
     }
   }, [username]);
 

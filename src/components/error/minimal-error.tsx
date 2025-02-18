@@ -5,7 +5,7 @@ import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { MinimalShape } from "../landing/minimal-shape";
-import { Theme } from "@/types";
+import { ErrorComponentProps } from "@/types/theme";
 import { ErrorThemeSwitcher } from "../ui/error-theme-switcher";
 
 const inter = Inter({
@@ -13,14 +13,7 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-type MinimalErrorProps = {
-  message: string;
-  onRetry: () => void;
-  onSwitchTheme: (theme: Theme) => void;
-  currentTheme: Theme;
-};
-
-export const MinimalError: React.FC<MinimalErrorProps> = ({
+export const MinimalError: React.FC<ErrorComponentProps> = ({
   message,
   onRetry,
   onSwitchTheme,
