@@ -1,9 +1,9 @@
 import { Theme } from "@/types/theme";
 
-type ErrorThemeSwitcherProps = {
+interface ErrorThemeSwitcherProps {
   currentTheme: Theme;
   onSwitchTheme: (theme: Theme) => void;
-};
+}
 
 export const ErrorThemeSwitcher: React.FC<ErrorThemeSwitcherProps> = ({
   currentTheme,

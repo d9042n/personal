@@ -1,3 +1,3 @@
-export { GeometricError } from "./geometric-error";
-export { MinimalError } from "./minimal-error";
-export { ArtisticError } from "./artistic-error"; 
+export * from "./geometric-error";
+export * from "./minimal-error";
+export * from "./artistic-error"; 

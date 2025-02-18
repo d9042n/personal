@@ -5,7 +5,7 @@ import { Playfair_Display } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { AbstractShape } from "../landing/abstract-shape";
-import { Theme } from "@/types/theme";
+import { ErrorComponentProps } from "@/types/theme";
 import { ErrorThemeSwitcher } from "../ui/error-theme-switcher";
 
 const playfairDisplay = Playfair_Display({
@@ -14,14 +14,7 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
 });
 
-type ArtisticErrorProps = {
-  message: string;
-  onRetry: () => void;
-  onSwitchTheme: (theme: Theme) => void;
-  currentTheme: Theme;
-};
-
-export const ArtisticError: React.FC<ArtisticErrorProps> = ({
+export const ArtisticError: React.FC<ErrorComponentProps> = ({
   message,
   onRetry,
   onSwitchTheme,
