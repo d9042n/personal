@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Theme } from "@/types/theme";
 import { useProfile } from "@/hooks/useProfile";
@@ -64,5 +64,9 @@ const ProfileContent: FC = () => {
 };
 
 export default function HomePage() {
-  return <ProfileContent />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProfileContent />
+    </Suspense>
+  );
 }

@@ -18,17 +18,14 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+# Install webpack and its types for TypeScript (if not already included in package.json)
+RUN npm install webpack @types/webpack --save-dev
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line to disable telemetry during the build.
-ENV NEXT_TELEMETRY_DISABLED 1
 
 # Build the application
 RUN npm run build
@@ -37,22 +34,30 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-# Disable telemetry during runtime
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# Create a script to generate env file and start the application
+COPY docker/production/start.sh ./
+RUN chmod +x start.sh
 
 COPY --from=builder /app/public ./public
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Set proper ownership for the start script
+RUN chown nextjs:nodejs start.sh
 
 USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["./start.sh"]

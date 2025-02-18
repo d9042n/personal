@@ -22,6 +22,10 @@ const nextConfig = {
     }
     return config;
   },
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME: process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME,
+  },
 };
 
 export default nextConfig;

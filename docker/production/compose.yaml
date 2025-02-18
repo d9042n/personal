@@ -12,8 +12,12 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.production.example.com}
+      - NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=${NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME:-default}
     env_file:
       - ../../.env.production
+    volumes:
+      - ../../.env.production:/app/.env.production:ro
     healthcheck:
       test:
         [
