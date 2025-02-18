@@ -5,6 +5,8 @@ import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { MinimalShape } from "../landing/minimal-shape";
+import { Theme } from "@/types";
+import { ErrorThemeSwitcher } from "../ui/error-theme-switcher";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,8 +16,8 @@ const inter = Inter({
 type MinimalErrorProps = {
   message: string;
   onRetry: () => void;
-  onSwitchTheme: (theme: "gradient" | "geometric" | "minimal") => void;
-  currentTheme: "gradient" | "geometric" | "minimal";
+  onSwitchTheme: (theme: Theme) => void;
+  currentTheme: Theme;
 };
 
 export const MinimalError: React.FC<MinimalErrorProps> = ({
@@ -31,38 +33,10 @@ export const MinimalError: React.FC<MinimalErrorProps> = ({
         inter.className
       )}
     >
-      <div className="fixed top-4 right-4 z-50 flex gap-2">
-        <button
-          onClick={() => onSwitchTheme("gradient")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            currentTheme === "gradient"
-              ? "bg-purple-500 text-white"
-              : "bg-zinc-800 text-zinc-300"
-          }`}
-        >
-          Gradient
-        </button>
-        <button
-          onClick={() => onSwitchTheme("geometric")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            currentTheme === "geometric"
-              ? "bg-[#64ffda] text-[#0a192f]"
-              : "bg-zinc-800 text-zinc-300"
-          }`}
-        >
-          Geometric
-        </button>
-        <button
-          onClick={() => onSwitchTheme("minimal")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            currentTheme === "minimal"
-              ? "bg-black text-white"
-              : "bg-zinc-800 text-zinc-300"
-          }`}
-        >
-          Minimal
-        </button>
-      </div>
+      <ErrorThemeSwitcher
+        currentTheme={currentTheme}
+        onSwitchTheme={onSwitchTheme}
+      />
 
       <div className="absolute inset-0 overflow-hidden">
         <MinimalShape delay={0.2} size={200} className="left-[10%] top-[20%]" />

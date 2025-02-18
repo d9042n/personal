@@ -9,11 +9,13 @@ import {
   GeometricSection,
   GradientSection,
   MinimalSection,
+  ArtisticSection,
 } from "@/components/landing";
 import {
   GeometricError,
   GradientError,
   MinimalError,
+  ArtisticError,
 } from "@/components/error";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
@@ -21,12 +23,14 @@ const ERROR_COMPONENTS = {
   gradient: GradientError,
   geometric: GeometricError,
   minimal: MinimalError,
+  artistic: ArtisticError,
 } as const;
 
 const SECTION_COMPONENTS = {
   gradient: GradientSection,
   geometric: GeometricSection,
   minimal: MinimalSection,
+  artistic: ArtisticSection,
 } as const;
 
 const ProfileContent: FC = () => {

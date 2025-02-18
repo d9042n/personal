@@ -1,4 +1,4 @@
-export type Theme = "gradient" | "geometric" | "minimal";
+export type Theme = "gradient" | "geometric" | "minimal" | "artistic";
 
 export interface ThemeProps {
   currentTheme: Theme;

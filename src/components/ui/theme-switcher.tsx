@@ -8,16 +8,20 @@ type ThemeSwitcherProps = {
 const themeStyles = {
   gradient: {
     active: "bg-purple-500 text-white",
-    inactive: "bg-zinc-800 text-zinc-300"
+    inactive: "bg-zinc-800 text-zinc-300",
   },
   geometric: {
     active: "bg-[#64ffda] text-[#0a192f]",
-    inactive: "bg-zinc-800 text-zinc-300"
+    inactive: "bg-zinc-800 text-zinc-300",
   },
   minimal: {
     active: "bg-black text-white",
-    inactive: "bg-zinc-800 text-zinc-300"
-  }
+    inactive: "bg-zinc-800 text-zinc-300",
+  },
+  artistic: {
+    active: "bg-[#7928ca] text-white",
+    inactive: "bg-zinc-800 text-zinc-300",
+  },
 } as const;
 
 const ThemeButton: React.FC<{
@@ -39,7 +43,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
   currentTheme,
   onThemeChange,
 }) => {
-  const themes: Theme[] = ["gradient", "geometric", "minimal"];
+  const themes: Theme[] = ["gradient", "geometric", "minimal", "artistic"];
 
   return (
     <div className="fixed top-4 right-4 z-50 flex gap-2">
@@ -53,4 +57,4 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
       ))}
     </div>
   );
-}; 
+};

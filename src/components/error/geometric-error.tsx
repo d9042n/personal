@@ -5,6 +5,8 @@ import { Fira_Code } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import { GeometricSpotlight } from "../landing/geometric-spotlight";
+import { Theme } from "@/types";
+import { ErrorThemeSwitcher } from "../ui/error-theme-switcher";
 
 const firaCode = Fira_Code({
   subsets: ["latin"],
@@ -15,8 +17,8 @@ const firaCode = Fira_Code({
 type GeometricErrorProps = {
   message: string;
   onRetry: () => void;
-  onSwitchTheme: (theme: "gradient" | "geometric" | "minimal") => void;
-  currentTheme: "gradient" | "geometric" | "minimal";
+  onSwitchTheme: (theme: Theme) => void;
+  currentTheme: Theme;
 };
 
 export const GeometricError: React.FC<GeometricErrorProps> = ({
@@ -40,38 +42,10 @@ export const GeometricError: React.FC<GeometricErrorProps> = ({
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#0a192f]">
-      <div className="fixed top-4 right-4 z-50 flex gap-2">
-        <button
-          onClick={() => onSwitchTheme("gradient")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            currentTheme === "gradient"
-              ? "bg-purple-500 text-white"
-              : "bg-zinc-800 text-zinc-300"
-          }`}
-        >
-          Gradient
-        </button>
-        <button
-          onClick={() => onSwitchTheme("geometric")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            currentTheme === "geometric"
-              ? "bg-[#64ffda] text-[#0a192f]"
-              : "bg-zinc-800 text-zinc-300"
-          }`}
-        >
-          Geometric
-        </button>
-        <button
-          onClick={() => onSwitchTheme("minimal")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            currentTheme === "minimal"
-              ? "bg-black text-white"
-              : "bg-zinc-800 text-zinc-300"
-          }`}
-        >
-          Minimal
-        </button>
-      </div>
+      <ErrorThemeSwitcher
+        currentTheme={currentTheme}
+        onSwitchTheme={onSwitchTheme}
+      />
 
       <div className="absolute inset-0 bg-gradient-to-br from-[#112240]/[0.05] via-transparent to-[#64ffda]/[0.05] blur-3xl" />
 
