@@ -1,175 +1,133 @@
-# 🎨 Modern Portfolio Website
+# Modern Portfolio Website
 
-A sleek and interactive portfolio website built with Next.js, featuring dynamic design switching between three distinct styles: Gradient, Geometric, and Minimal. This modern web application showcases best practices in React development with smooth animations and responsive design.
+A dynamic portfolio website built with Next.js 14, featuring three distinct design themes: Gradient, Geometric, and Minimal. This modern web application showcases React development best practices with smooth animations and responsive design.
 
 ## ✨ Features
 
-### 🎯 Design Themes
+### 🎨 Design Themes
 
-- **Gradient Design**: Modern, vibrant gradients with smooth animations
-- **Geometric Design**: Clean, minimalist design with geometric patterns
-- **Minimal Design**: Simple, elegant design with subtle animations
+- **Gradient Theme**: Modern, vibrant gradients with smooth spotlight effects
+- **Geometric Theme**: Clean, minimalist design with geometric patterns
+- **Minimal Theme**: Simple, elegant design with subtle animations
 
 ### 🛠 Technical Features
 
 - Built with Next.js 14 and TypeScript
 - Server-Side Rendering (SSR) support
-- Dynamic profile loading with API integration
+- Dynamic profile loading via API
 - Environment-based configuration
-- Docker support for all environments
-- Responsive design for all devices
-
-### 🎭 Interactive Elements
-
-- Real-time theme switching
-- Smooth animations powered by Framer Motion
-- Dynamic spotlight effects
-- Social media integration
-- Availability status badge
+- Docker containerization for all environments
+- Responsive design with Tailwind CSS
+- Smooth animations using Framer Motion
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js (v18 or higher)
-- npm or yarn
-- Docker (optional)
+- Docker
+- Make (optional, for using Makefile commands)
 
-### Local Development Setup
+### Development Setup
 
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/portfolio-website.git
+git clone <repository-url>
 cd portfolio-website
 ```
 
-2. **Install dependencies**
+2. **Environment Setup**
 
 ```bash
-npm install
-# or
-yarn install
+# Copy environment sample files
+make development-env-setup   # For development
+make production-env-setup    # For production
 ```
 
-3. **Environment Setup**
+3. **Start Development Server**
 
 ```bash
-# For development
-cp .env.development.sample .env.development
+# Using Make
+make development
 
-# For staging
-cp .env.staging.sample .env.staging
-
-# For production
-cp .env.production.sample .env.production
+# Using Docker directly
+docker compose -f docker/development/compose.yaml up
 ```
 
-4. **Start development server**
+### Production Deployment
 
 ```bash
-npm run dev
-# or
-yarn dev
-```
+# Build and start production environment
+make production-deploy
 
-### 🐳 Docker Setup
+# Monitor production logs
+make production-logs
 
-#### Development
-
-```bash
-docker compose -f docker/development/compose.yaml up --build
-```
-
-#### Staging
-
-```bash
-docker compose -f docker/staging/compose.yaml up --build
-```
-
-#### Production
-
-```bash
-docker compose -f docker/production/compose.yaml up --build
+# Health check
+make production-health
 ```
 
 ## 🔧 Environment Configuration
 
-### Environment Variables
+### Key Environment Variables
 
 | Variable                               | Description              | Default                 |
 | -------------------------------------- | ------------------------ | ----------------------- |
 | `NEXT_PUBLIC_API_URL`                  | API endpoint URL         | `http://localhost:8000` |
 | `NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME` | Default profile username | `default`               |
 
-### Docker Environment Variables
+### Docker Configuration
 
-You can override environment variables during build or runtime:
+Each environment (development, staging, production) has its own:
 
-```bash
-# Build with custom environment variables
-docker build \
-  --build-arg NEXT_PUBLIC_API_URL=https://api.example.com \
-  --build-arg NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=yourprofile \
-  -t your-image-name .
+- Dockerfile
+- Docker Compose configuration
+- Environment variable setup
 
-# Run with environment variables
-docker run \
-  -e NEXT_PUBLIC_API_URL=https://api.example.com \
-  -e NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME=yourprofile \
-  your-image-name
-```
+## 🎨 Theme Features
 
-## 🎨 Theme Customization
+### Gradient Theme
 
-### Available Themes
+- Vibrant gradient spotlights
+- Modern, dark aesthetic
+- Smooth motion effects
+- Social media integration
 
-1. **Gradient Theme**
+### Geometric Theme
 
-   - Vibrant, modern design
-   - Animated gradient spotlights
-   - Smooth color transitions
+- Clean, tech-inspired design
+- Geometric patterns and shapes
+- Custom spotlight effects
+- Code-like typography
 
-2. **Geometric Theme**
+### Minimal Theme
 
-   - Minimalist and clean
-   - Geometric patterns
-   - Custom spotlight effects
+- Simple, elegant layout
+- Subtle shape animations
+- Clean typography
+- High contrast design
 
-3. **Minimal Theme**
-   - Simple and elegant
-   - Subtle animations
-   - Clean typography
-
-## 🛠️ Built With
+## 🛠️ Tech Stack
 
 - [Next.js](https://nextjs.org/) - React framework
-- [TypeScript](https://www.typescriptlang.org/) - Programming language
-- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
-- [Framer Motion](https://www.framer.com/motion/) - Animation library
-- [Lucide Icons](https://lucide.dev/) - Icon library
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [Framer Motion](https://www.framer.com/motion/) - Animations
+- [Docker](https://www.docker.com/) - Containerization
+- [Lucide Icons](https://lucide.dev/) - Icon system
 
-## 📱 Responsive Design
-
-The portfolio is fully responsive and optimized for:
-
-- 📱 Mobile devices (320px+)
-- 📱 Tablets (768px+)
-- 💻 Desktops (1024px+)
-- 🖥️ Large screens (1440px+)
-
-## 📂 Project Structure
+## �� Project Structure
 
 ```
 portfolio-website/
 ├── src/
 │   ├── app/              # Next.js app directory
-│   │   └── page.tsx     # Main page component
 │   ├── components/       # React components
 │   │   ├── error/       # Error components
 │   │   ├── landing/     # Landing page components
 │   │   └── ui/          # UI components
-│   ├── lib/             # Utility functions
+│   ├── lib/
 │   ├── services/        # API services
 │   ├── styles/          # Global styles
 │   └── types/           # TypeScript types
@@ -201,5 +159,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-Made with ❤️ by [Your Name]
+Made with ❤️ by Personal
 </p>
