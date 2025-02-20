@@ -17,6 +17,7 @@ import {
   Globe, // for Portfolio
   PenTool, // for Dev.to
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const firaCode = Fira_Code({
   subsets: ["latin"],
@@ -65,6 +66,8 @@ export const GeometricSection: React.FC<GeometricSectionProps> = ({
       },
     }),
   };
+
+  const router = useRouter();
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#0a192f]">
@@ -295,6 +298,17 @@ export const GeometricSection: React.FC<GeometricSectionProps> = ({
               </a>
             )}
           </motion.div>
+
+          <motion.button
+            custom={4}
+            variants={fadeUpVariants}
+            initial="hidden"
+            animate="visible"
+            onClick={() => router.push("/login")}
+            className="mt-8 px-6 py-3 bg-transparent border-2 border-[#64ffda] text-[#64ffda] rounded-md hover:bg-[#64ffda]/10 transition-colors duration-300 font-mono"
+          >
+            Make Your Own
+          </motion.button>
         </div>
       </div>
 

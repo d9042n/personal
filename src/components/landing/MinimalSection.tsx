@@ -17,6 +17,7 @@ import {
   PenTool, // for Dev.to
 } from "lucide-react";
 import { MinimalShape } from "./minimal-shape";
+import { useRouter } from "next/navigation";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -64,6 +65,8 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
       },
     }),
   };
+
+  const router = useRouter();
 
   return (
     <div
@@ -259,6 +262,16 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
               </a>
             )}
           </motion.div>
+
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1 }}
+            onClick={() => router.push("/login")}
+            className="mt-8 px-6 py-3 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-300"
+          >
+            Make Your Own
+          </motion.button>
         </div>
       </div>
     </div>

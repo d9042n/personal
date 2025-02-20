@@ -17,6 +17,7 @@ import {
   Globe, // for Portfolio
   PenTool, // for Dev.to
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
@@ -69,6 +70,8 @@ export const ArtisticSection: React.FC<ArtisticSectionProps> = ({
       },
     }),
   };
+
+  const router = useRouter();
 
   return (
     <div
@@ -300,6 +303,17 @@ export const ArtisticSection: React.FC<ArtisticSectionProps> = ({
               </a>
             )}
           </motion.div>
+
+          <motion.button
+            custom={4}
+            variants={fadeUpVariants}
+            initial="hidden"
+            animate="visible"
+            onClick={() => router.push("/login")}
+            className="mt-8 px-6 py-3 bg-transparent border-2 border-[#ff6b6b] text-[#ff6b6b] rounded-md hover:bg-[#ff6b6b]/10 transition-colors duration-300 font-serif"
+          >
+            Make Your Own
+          </motion.button>
         </div>
       </div>
 
