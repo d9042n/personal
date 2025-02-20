@@ -8,6 +8,8 @@ import {GeometricSpotlight} from "../landing/geometric-spotlight";
 import {MinimalShape} from "../landing/minimal-shape";
 import {ArtisticShape} from "../landing/artistic-shape";
 import {Fira_Code, Inter, Playfair_Display} from "next/font/google";
+import {Facebook, Github} from "lucide-react";
+import {motion} from "framer-motion";
 
 const firaCode = Fira_Code({
     subsets: ["latin"],
@@ -37,6 +39,11 @@ const themeStyles = {
         button:
             "bg-transparent border-2 border-[#64ffda] text-[#64ffda] hover:bg-[#64ffda]/10",
         font: firaCode.className,
+        socialButton:
+            "bg-[#0a192f] border-[#233554] text-[#ccd6f6] hover:border-[#64ffda] hover:text-[#64ffda] transition-all duration-300",
+        divider: "border-[#233554]",
+        dividerBg: "bg-[#112240]",
+        dividerText: "text-[#ccd6f6]",
     },
     minimal: {
         background: "bg-white",
@@ -46,6 +53,11 @@ const themeStyles = {
         input: "bg-white border-gray-200 text-gray-900 focus:border-gray-900",
         button: "bg-black text-white hover:bg-gray-800",
         font: inter.className,
+        socialButton:
+            "bg-white border-gray-200 text-gray-900 hover:border-gray-900 hover:bg-gray-50 transition-all duration-300",
+        divider: "border-gray-200",
+        dividerBg: "bg-white",
+        dividerText: "text-gray-600",
     },
     artistic: {
         background: "bg-[#1a0b2e]",
@@ -56,6 +68,11 @@ const themeStyles = {
         button:
             "bg-transparent border-2 border-[#ff6b6b] text-[#ff6b6b] hover:bg-[#ff6b6b]/10",
         font: playfairDisplay.className,
+        socialButton:
+            "bg-white/5 border-white/10 text-white hover:border-[#ff6b6b] hover:text-[#ff6b6b] transition-all duration-300",
+        divider: "border-white/10",
+        dividerBg: "bg-[#1a0b2e]",
+        dividerText: "text-white/60",
     },
 } as const;
 
@@ -120,6 +137,81 @@ export function LoginForm({
                             <Button type="submit" className={styles.button}>
                                 Login
                             </Button>
+
+                            <div className="relative text-center text-sm">
+                                <div
+                                    className={cn(
+                                        "absolute inset-x-0 top-1/2 h-px -translate-y-1/2",
+                                        styles.divider
+                                    )}
+                                />
+                                <span
+                                    className={cn(
+                                        "relative z-10 px-4",
+                                        styles.dividerText,
+                                        styles.dividerBg
+                                    )}
+                                >
+                  Or continue with
+                </span>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-4">
+                                <Button
+                                    variant="outline"
+                                    className={cn(
+                                        "w-full h-11 rounded-md transition-all duration-300",
+                                        styles.socialButton
+                                    )}
+                                    onClick={() => console.log("GitHub login")}
+                                >
+                                    <motion.div
+                                        whileHover={{scale: 1.1}}
+                                        transition={{duration: 0.2}}
+                                    >
+                                        <Github className="h-5 w-5"/>
+                                    </motion.div>
+                                    <span className="sr-only">Login with GitHub</span>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className={cn(
+                                        "w-full h-11 rounded-md transition-all duration-300",
+                                        styles.socialButton
+                                    )}
+                                    onClick={() => console.log("Google login")}
+                                >
+                                    <motion.div
+                                        whileHover={{scale: 1.1}}
+                                        transition={{duration: 0.2}}
+                                    >
+                                        <svg className="h-5 w-5" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                                                fill="currentColor"
+                                            />
+                                        </svg>
+                                    </motion.div>
+                                    <span className="sr-only">Login with Google</span>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className={cn(
+                                        "w-full h-11 rounded-md transition-all duration-300",
+                                        styles.socialButton
+                                    )}
+                                    onClick={() => console.log("Facebook login")}
+                                >
+                                    <motion.div
+                                        whileHover={{scale: 1.1}}
+                                        transition={{duration: 0.2}}
+                                    >
+                                        <Facebook className="h-5 w-5"/>
+                                    </motion.div>
+                                    <span className="sr-only">Login with Facebook</span>
+                                </Button>
+                            </div>
+
                             <div className="text-center text-sm">
                 <span className={styles.mutedText}>
                   Don&apos;t have an account?{" "}
