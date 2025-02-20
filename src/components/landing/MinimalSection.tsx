@@ -267,7 +267,7 @@ export const MinimalSection: React.FC<MinimalSectionProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
-            onClick={() => router.push("/login")}
+            onClick={() => router.push("/login?theme=minimal")}
             className="mt-8 px-6 py-3 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-300"
           >
             Make Your Own

@@ -309,7 +309,7 @@ export const ArtisticSection: React.FC<ArtisticSectionProps> = ({
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            onClick={() => router.push("/login")}
+            onClick={() => router.push("/login?theme=artistic")}
             className="mt-8 px-6 py-3 bg-transparent border-2 border-[#ff6b6b] text-[#ff6b6b] rounded-md hover:bg-[#ff6b6b]/10 transition-colors duration-300 font-serif"
           >
             Make Your Own

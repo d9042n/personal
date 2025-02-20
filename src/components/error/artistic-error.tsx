@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Playfair_Display } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
-import { AbstractShape } from "../landing/abstract-shape";
+import { ArtisticShape } from "../landing/artistic-shape";
 import { ErrorComponentProps } from "@/types/theme";
 import { ErrorThemeSwitcher } from "../ui/error-theme-switcher";
 
@@ -43,31 +43,29 @@ export const ArtisticError: React.FC<ErrorComponentProps> = ({
       <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b6b]/[0.15] via-transparent to-[#4ecdc4]/[0.15] blur-3xl" />
 
       <div className="absolute inset-0 overflow-hidden">
-        <AbstractShape
+        <ArtisticShape
           delay={0.3}
-          width={600}
-          height={140}
-          rotate={12}
-          gradient="from-[#ff6b6b]/[0.3]"
-          className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
-        />
-
-        <AbstractShape
-          delay={0.5}
-          width={500}
-          height={120}
-          rotate={-15}
-          gradient="from-[#4ecdc4]/[0.3]"
-          className="right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
-        />
-
-        <AbstractShape
-          delay={0.4}
           width={300}
-          height={80}
+          height={300}
+          rotate={12}
+          gradient="from-[#7928ca]/[0.3]"
+          className="left-[-5%] md:left-[5%] top-[15%] md:top-[20%]"
+        />
+        <ArtisticShape
+          delay={0.5}
+          width={250}
+          height={250}
+          rotate={-15}
+          gradient="from-[#ff0080]/[0.3]"
+          className="right-[-5%] md:right-[5%] top-[60%] md:top-[65%]"
+        />
+        <ArtisticShape
+          delay={0.4}
+          width={200}
+          height={200}
           rotate={-8}
-          gradient="from-[#f7b733]/[0.3]"
-          className="left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
+          gradient="from-[#00d4ff]/[0.3]"
+          className="left-[10%] md:left-[15%] bottom-[10%] md:bottom-[15%]"
         />
       </div>
 

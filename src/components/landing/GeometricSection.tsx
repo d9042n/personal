@@ -304,7 +304,7 @@ export const GeometricSection: React.FC<GeometricSectionProps> = ({
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            onClick={() => router.push("/login")}
+            onClick={() => router.push("/login?theme=geometric")}
             className="mt-8 px-6 py-3 bg-transparent border-2 border-[#64ffda] text-[#64ffda] rounded-md hover:bg-[#64ffda]/10 transition-colors duration-300 font-mono"
           >
             Make Your Own
