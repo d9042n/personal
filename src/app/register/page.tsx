@@ -1,11 +1,11 @@
 "use client";
 
-import { LoginForm } from "@/components/ui/login-form";
+import { RegisterForm } from "@/components/ui/register-form";
 import { useSearchParams } from "next/navigation";
 import { Theme } from "@/types/theme";
 import { AuthLayout } from "@/components/ui/auth-layout";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const searchParams = useSearchParams();
   const theme = (searchParams.get("theme") as Theme) || "geometric";
 
@@ -21,7 +21,7 @@ export default function LoginPage() {
     >
       <AuthLayout>
         <div className="w-full max-w-sm md:max-w-3xl">
-          <LoginForm theme={theme} />
+          <RegisterForm theme={theme} />
         </div>
       </AuthLayout>
     </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,9 +12,11 @@ import { ArtisticShape } from "../landing/artistic-shape";
 import { Fira_Code, Inter, Playfair_Display } from "next/font/google";
 import { Facebook, Github } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import { useState } from "react";
+import { validatePassword } from "@/lib/validation";
 
 const firaCode = Fira_Code({
   subsets: ["latin"],
@@ -79,23 +83,45 @@ const themeStyles = {
   },
 } as const;
 
-export function LoginForm({
+export function RegisterForm({
   className,
   theme = "geometric",
   ...props
 }: React.ComponentProps<"div"> & { theme: Theme }) {
-  const { login, loading, error } = useAuth();
+  const { register, loading, error } = useAuth();
   const [formData, setFormData] = useState({
-    username_or_email: "",
+    username: "",
+    email: "",
     password: "",
+    name: "",
+    title: "",
   });
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const styles = themeStyles[theme];
+  const router = useRouter();
+
+  const formFields = [
+    { id: "username", label: "Username", type: "text" },
+    { id: "email", label: "Email", type: "email" },
+    { id: "password", label: "Password", type: "password" },
+    { id: "name", label: "Full Name", type: "text" },
+    { id: "title", label: "Professional Title", type: "text" },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate password
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.isValid) {
+      setValidationError(passwordValidation.message);
+      return;
+    }
+
     try {
-      await login(formData.username_or_email, formData.password);
+      setValidationError(null);
+      await register(formData);
     } catch (err) {
       // Error is handled by the auth context
     }
@@ -115,60 +141,67 @@ export function LoginForm({
     >
       <Card className={cn("overflow-hidden border", styles.card)}>
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form onSubmit={handleSubmit} className="p-6 md:p-8">
-            {error && (
-              <div
-                className={cn(
-                  "text-red-500 text-sm mb-4 text-center",
-                  styles.text
-                )}
-              >
-                {error}
-              </div>
-            )}
+          <motion.form
+            className="p-6 md:p-8"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            onSubmit={handleSubmit}
+          >
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className={cn("text-2xl font-bold", styles.text)}>
-                  Welcome back
+                  Create Account
                 </h1>
-                <p className={cn("text-sm", styles.mutedText)}>
-                  Sign in to your account
+                <p className={cn("text-balance", styles.mutedText)}>
+                  Join our community
                 </p>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="username_or_email" className={styles.text}>
-                  Username or Email
-                </Label>
-                <Input
-                  id="username_or_email"
-                  type="text"
-                  required
-                  className={styles.input}
-                  value={formData.username_or_email}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password" className={styles.text}>
-                  Password
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  className={styles.input}
-                  value={formData.password}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-              </div>
+
+              {error && (
+                <div
+                  className={cn(
+                    "text-red-500 text-sm mb-4 text-center",
+                    styles.text
+                  )}
+                >
+                  {error}
+                </div>
+              )}
+              {validationError && (
+                <div
+                  className={cn(
+                    "text-red-500 text-sm mb-4 text-center",
+                    styles.text
+                  )}
+                >
+                  {validationError}
+                </div>
+              )}
+
+              {formFields.map((field) => (
+                <div key={field.id} className="grid gap-2">
+                  <Label htmlFor={field.id} className={styles.text}>
+                    {field.label}
+                  </Label>
+                  <Input
+                    id={field.id}
+                    type={field.type}
+                    required
+                    className={styles.input}
+                    value={formData[field.id as keyof typeof formData]}
+                    onChange={handleChange}
+                    disabled={loading}
+                  />
+                </div>
+              ))}
+
               <Button
                 type="submit"
                 className={styles.button}
                 disabled={loading}
               >
-                {loading ? "Logging in..." : "Login"}
+                {loading ? "Creating account..." : "Register"}
               </Button>
 
               <div className="relative text-center text-sm">
@@ -196,7 +229,6 @@ export function LoginForm({
                     "w-full h-11 rounded-md transition-all duration-300",
                     styles.socialButton
                   )}
-                  onClick={() => console.log("GitHub login")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.1 }}
@@ -204,7 +236,6 @@ export function LoginForm({
                   >
                     <Github className="h-5 w-5" />
                   </motion.div>
-                  <span className="sr-only">Login with GitHub</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -212,7 +243,6 @@ export function LoginForm({
                     "w-full h-11 rounded-md transition-all duration-300",
                     styles.socialButton
                   )}
-                  onClick={() => console.log("Google login")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.1 }}
@@ -225,7 +255,6 @@ export function LoginForm({
                       />
                     </svg>
                   </motion.div>
-                  <span className="sr-only">Login with Google</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -233,7 +262,6 @@ export function LoginForm({
                     "w-full h-11 rounded-md transition-all duration-300",
                     styles.socialButton
                   )}
-                  onClick={() => console.log("Facebook login")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.1 }}
@@ -241,28 +269,27 @@ export function LoginForm({
                   >
                     <Facebook className="h-5 w-5" />
                   </motion.div>
-                  <span className="sr-only">Login with Facebook</span>
                 </Button>
               </div>
 
               <div className="text-center text-sm">
                 <span className={styles.mutedText}>
-                  Don&apos;t have an account?{" "}
+                  Already have an account?{" "}
                 </span>
                 <Link
-                  href={`/register?theme=${theme}`}
+                  href={`/login?theme=${theme}`}
                   className={cn("underline underline-offset-4", styles.text)}
                 >
                   <motion.span
                     whileHover={{ scale: 1.05 }}
                     className="inline-block"
                   >
-                    Sign up
+                    Sign in
                   </motion.span>
                 </Link>
               </div>
             </div>
-          </form>
+          </motion.form>
           <div className="relative hidden md:block">
             {theme === "geometric" && (
               <>
