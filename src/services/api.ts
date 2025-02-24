@@ -77,9 +77,7 @@ export interface RegisterData {
 
 export const authService = {
     async login(username_or_email: string, password: string): Promise<AuthResponse> {
-        console.log('Login attempt with:', { username_or_email, password }); // Debug log
         const hashedPassword = hashPassword(password);
-        console.log('Hashed password:', hashedPassword); // Debug log
         
         const response = await fetch(`${API_BASE_URL}/login/`, {
             method: 'POST',
