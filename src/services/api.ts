@@ -64,6 +64,18 @@ export interface AuthResponse {
         id: number;
         username: string;
         email: string;
+        first_name: string;
+        last_name: string;
+        users: {
+            profile: {
+                is_available: boolean;
+                badge: string;
+                name: string;
+                title: string;
+                description: string;
+                social_links: Record<string, string>;
+            };
+        };
     };
 }
 
@@ -75,17 +87,28 @@ export interface RegisterData {
     title: string;
 }
 
+export interface Session {
+    id: number;
+    session_key: string;
+    created_at: string;
+    last_activity: string;
+    ip_address: string;
+    user_agent: string;
+    device_type: string;
+    location: string;
+    is_active: boolean;
+    expires_at: string;
+    duration: number;
+    time_until_expiry: number;
+}
+
 export const authService = {
     async login(username_or_email: string, password: string): Promise<AuthResponse> {
         const hashedPassword = hashPassword(password);
-        
         const response = await fetch(`${API_BASE_URL}/login/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                username_or_email, 
-                password: hashedPassword 
-            }),
+            body: JSON.stringify({ username_or_email, password: hashedPassword }),
         });
         return handleResponse<AuthResponse>(response);
     },
@@ -111,12 +134,57 @@ export const authService = {
         return handleResponse<AuthResponse>(response);
     },
 
-    async logout(): Promise<void> {
+    async refreshToken(refresh_token: string): Promise<{ access: string }> {
+        const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh: refresh_token }),
+        });
+        return handleResponse<{ access: string }>(response);
+    },
+
+    async logout(refresh_token: string): Promise<void> {
         const response = await fetch(`${API_BASE_URL}/logout/`, {
             method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
             },
+            body: JSON.stringify({ refresh_token }),
+        });
+        return handleResponse(response);
+    },
+
+    async getSessions(): Promise<Session[]> {
+        const response = await fetch(`${API_BASE_URL}/session/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            },
+        });
+        return handleResponse<Session[]>(response);
+    },
+
+    async deleteSession(sessionId: number): Promise<void> {
+        const response = await fetch(`${API_BASE_URL}/session/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            },
+            body: JSON.stringify({ session_id: sessionId }),
+        });
+        return handleResponse(response);
+    },
+
+    async deleteAllOtherSessions(): Promise<void> {
+        const response = await fetch(`${API_BASE_URL}/session/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            },
+            body: JSON.stringify({ all_except_current: true }),
         });
         return handleResponse(response);
     },
