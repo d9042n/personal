@@ -7,7 +7,7 @@ import {
   useState,
   useCallback,
 } from "react";
-import { AuthResponse, Session, authService } from "@/services/api";
+import { AuthResponse, Session, authService, ApiError } from "@/services/api";
 import { RegisterData } from "@/types/auth";
 import { useRouter } from "next/navigation";
 
@@ -28,42 +28,71 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TOKEN_REFRESH_INTERVAL = 14 * 60 * 1000; // 14 minutes
 const SESSION_CHECK_INTERVAL = 60 * 1000; // 1 minute
 
+// Token storage keys to prevent typos
+const STORAGE_KEYS = {
+  ACCESS_TOKEN: "accessToken",
+  REFRESH_TOKEN: "refreshToken",
+  USER: "user",
+} as const;
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthResponse["user"] | null>(null);
+  const [user, setUser] = useState<AuthResponse["user"] | null>(() => {
+    // Initialize user from localStorage if available
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
+      return storedUser ? JSON.parse(storedUser) : null;
+    }
+    return null;
+  });
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  const clearAuthData = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER);
+    setUser(null);
+    setSessions([]);
+  }, []);
+
+  const handleAuthError = useCallback(
+    (err: unknown) => {
+      console.error("Auth error:", err);
+      clearAuthData();
+      router.push("/login");
+    },
+    [clearAuthData, router]
+  );
+
   const refreshAccessToken = useCallback(async () => {
-    const refreshToken = localStorage.getItem("refreshToken");
+    const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
     if (!refreshToken) {
       throw new Error("No refresh token available");
     }
 
     try {
       const { access } = await authService.refreshToken(refreshToken);
-      localStorage.setItem("accessToken", access);
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, access);
       return access;
     } catch (err) {
-      // If refresh fails, log out the user
-      await logout();
+      handleAuthError(err);
       throw new Error(
         err instanceof Error
           ? err.message
           : "Session expired. Please login again."
       );
     }
-  }, []);
+  }, [handleAuthError]);
 
   const checkAndRefreshToken = useCallback(async () => {
     try {
       await refreshAccessToken();
     } catch (err) {
-      console.error("Token refresh failed:", err);
-      router.push("/login");
+      handleAuthError(err);
     }
-  }, [refreshAccessToken, router]);
+  }, [refreshAccessToken, handleAuthError]);
 
   const fetchSessions = useCallback(async () => {
     try {
@@ -73,13 +102,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Check if current session is still active
       const currentSession = sessions.find((s) => s.is_active);
       if (!currentSession) {
-        await logout();
-        router.push("/login");
+        throw new Error("No active session found");
       }
     } catch (err) {
-      console.error("Failed to fetch sessions:", err);
+      handleAuthError(err);
     }
-  }, [router]);
+  }, [handleAuthError]);
 
   useEffect(() => {
     // Set up token refresh interval
@@ -91,30 +119,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const sessionInterval = setInterval(fetchSessions, SESSION_CHECK_INTERVAL);
 
     // Initial token check and session fetch
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     if (accessToken) {
       checkAndRefreshToken();
       fetchSessions();
+    } else {
+      // If no access token, clear any stale data and redirect to login
+      clearAuthData();
+      router.push("/login");
     }
 
     return () => {
       clearInterval(tokenInterval);
       clearInterval(sessionInterval);
     };
-  }, [checkAndRefreshToken, fetchSessions]);
+  }, [checkAndRefreshToken, fetchSessions, clearAuthData, router]);
 
   const login = async (username_or_email: string, password: string) => {
     try {
       setLoading(true);
       setError(null);
       const response = await authService.login(username_or_email, password);
-      localStorage.setItem("accessToken", response.access);
-      localStorage.setItem("refreshToken", response.refresh);
+
+      // Store auth data
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.access);
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refresh);
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.user));
+
       setUser(response.user);
       await fetchSessions();
-      router.push("/");
+
+      // Ensure we have the username before redirecting
+      if (!response.user?.username) {
+        throw new Error("Invalid user data received");
+      }
+
+      router.push(`/dashboard/${response.user.username}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      clearAuthData();
+      setError(
+        err instanceof Error ? err.message : "An error occurred during login"
+      );
       throw err;
     } finally {
       setLoading(false);
@@ -126,13 +171,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       setError(null);
       const response = await authService.register(data);
-      localStorage.setItem("accessToken", response.access);
-      localStorage.setItem("refreshToken", response.refresh);
+
+      // Store auth data
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.access);
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refresh);
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.user));
+
       setUser(response.user);
       await fetchSessions();
-      router.push("/");
+
+      // Ensure we have the username before redirecting
+      if (!response.user?.username) {
+        throw new Error("Invalid user data received");
+      }
+
+      router.push(`/dashboard/${response.user.username}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      clearAuthData();
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred during registration"
+      );
       throw err;
     } finally {
       setLoading(false);
@@ -142,19 +202,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       setLoading(true);
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (refreshToken) {
-        await authService.logout(refreshToken);
+      setError(null);
+      const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+
+      if (!refreshToken) {
+        throw new ApiError(400, "No refresh token available");
       }
+
+      await authService.logout(refreshToken);
+      router.push("/login");
     } catch (err) {
       console.error("Logout error:", err);
+      setError(
+        err instanceof Error ? err.message : "An error occurred during logout"
+      );
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      setUser(null);
-      setSessions([]);
+      clearAuthData();
       setLoading(false);
-      router.push("/login");
     }
   };
 
@@ -164,8 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await authService.deleteSession(sessionId);
       await fetchSessions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-      throw err;
+      handleAuthError(err);
     } finally {
       setLoading(false);
     }
@@ -177,8 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await authService.deleteAllOtherSessions();
       await fetchSessions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-      throw err;
+      handleAuthError(err);
     } finally {
       setLoading(false);
     }
