@@ -124,16 +124,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       checkAndRefreshToken();
       fetchSessions();
     } else {
-      // If no access token, clear any stale data and redirect to login
+      // Just clear any stale data without redirecting
       clearAuthData();
-      router.push("/login");
     }
 
     return () => {
       clearInterval(tokenInterval);
       clearInterval(sessionInterval);
     };
-  }, [checkAndRefreshToken, fetchSessions, clearAuthData, router]);
+  }, [checkAndRefreshToken, fetchSessions, clearAuthData]);
 
   const login = async (username_or_email: string, password: string) => {
     try {

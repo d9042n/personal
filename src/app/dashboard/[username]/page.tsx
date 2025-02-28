@@ -5,33 +5,16 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { ProfileTab } from "@/components/dashboard/profile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Spinner } from "@/components/ui/spinner";
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const params = useParams();
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Handle client-side rendering
+  // Authorization check - ensure user can only access their own dashboard
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Authentication and authorization check
-  useEffect(() => {
-    if (!isClient || loading) {
-      return;
-    }
-
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    // Check if trying to access another user's dashboard
-    if (user.username !== params.username) {
+    if (user && user.username !== params.username) {
       setError("You don't have permission to view this dashboard");
       // Redirect after a short delay to show the error message
       const timeout = setTimeout(() => {
@@ -41,16 +24,7 @@ export default function DashboardPage() {
     } else {
       setError(null);
     }
-  }, [user, params.username, router, isClient, loading]);
-
-  // Show loading state while checking authentication
-  if (!isClient || loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
+  }, [user, params.username, router]);
 
   // Show error state
   if (error) {
@@ -61,11 +35,6 @@ export default function DashboardPage() {
         </Alert>
       </div>
     );
-  }
-
-  // If not authenticated, don't render anything
-  if (!user) {
-    return null;
   }
 
   return (
