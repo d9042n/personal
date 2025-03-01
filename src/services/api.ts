@@ -9,22 +9,200 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from 'axios';
+import { ProfileFormData, AuthResponse } from '@/types/api'
+import type { User } from '@/types/api'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
-const DEFAULT_USERNAME = process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME ?? 'default';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
 // Add debug log
 console.log('API Configuration:', {
-    API_URL,
-    DEFAULT_USERNAME,
-    ENV_USERNAME: process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME
+    API_BASE_URL,
+    DEFAULT_USERNAME: process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME
 });
 
+export interface ApiResponse<T> {
+  data: T
+  error?: string
+}
+
 export class ApiError extends Error {
-    constructor(public status: number, message: string) {
-        super(message);
-        this.name = 'ApiError';
+  status: number
+
+  constructor(status: number, message: string) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
+// Helper function to get cookies
+function getCookie(name: string): string | undefined {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(';').shift()
+}
+
+// Helper function to set cookies
+function setCookie(name: string, value: string, days = 7) {
+  const date = new Date()
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
+  const expires = `expires=${date.toUTCString()}`
+  document.cookie = `${name}=${value};${expires};path=/`
+}
+
+async function refreshAccessToken(): Promise<string> {
+  const refreshToken = getCookie('refresh_token')
+  if (!refreshToken) {
+    throw new Error('No refresh token available')
+  }
+
+  const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ refresh: refreshToken }),
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to refresh token')
+  }
+
+  const data = await response.json()
+  setCookie('access_token', data.access)
+  return data.access
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    if (response.status === 401) {
+      try {
+        // Try to refresh the token
+        const newToken = await refreshAccessToken()
+        // Retry the original request with the new token
+        const newResponse = await fetch(response.url, {
+          ...response,
+          headers: {
+            ...response.headers,
+            Authorization: `Bearer ${newToken}`,
+          },
+        })
+        if (!newResponse.ok) {
+          throw new Error('Unauthorized')
+        }
+        return newResponse.json()
+      } catch (error) {
+        throw new Error('Unauthorized')
+      }
     }
+    throw new ApiError(response.status, `API error: ${response.statusText}`)
+  }
+  return response.json()
+}
+
+async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
+  const accessToken = getCookie('access_token')
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    ...options.headers,
+  }
+
+  const response = await fetch(url, { ...options, headers })
+
+  if (response.status === 401) {
+    try {
+      const newToken = await refreshAccessToken()
+      // Retry the request with the new token
+      return fetch(url, {
+        ...options,
+        headers: {
+          ...headers,
+          Authorization: `Bearer ${newToken}`,
+        },
+      })
+    } catch (error) {
+      throw new Error('Unauthorized')
+    }
+  }
+
+  return response
+}
+
+export const api = {
+  async get<T>(endpoint: string): Promise<T> {
+    const response = await fetchWithAuth(`${API_BASE_URL}${endpoint}`)
+    return handleResponse<T>(response)
+  },
+
+  async post<T>(endpoint: string, data: unknown): Promise<T> {
+    const response = await fetchWithAuth(`${API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+    return handleResponse<T>(response)
+  },
+
+  async patch<T>(endpoint: string, data: unknown): Promise<T> {
+    const response = await fetchWithAuth(`${API_BASE_URL}${endpoint}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+    return handleResponse<T>(response)
+  },
+}
+
+interface ApiUserResponse {
+  id: number
+  username: string
+  email: string
+  first_name: string
+  last_name: string
+  users: {
+    profile: {
+      is_available: boolean
+      badge: string
+      name: string
+      title: string
+      description: string
+      social_links: Record<string, string>
+    }
+  }
+}
+
+function transformUserResponse(data: ApiUserResponse): User {
+  return {
+    id: data.id,
+    username: data.username,
+    email: data.email,
+    first_name: data.first_name,
+    last_name: data.last_name,
+    profile: {
+      is_available: data.users.profile.is_available,
+      badge: data.users.profile.badge,
+      name: data.users.profile.name,
+      title: data.users.profile.title,
+      description: data.users.profile.description,
+      social_links: data.users.profile.social_links,
+    },
+  }
+}
+
+export const userApi = {
+  async getProfile(username: string): Promise<User> {
+    const response = await fetchWithAuth(`${API_BASE_URL}/users/${username}`)
+    const data = await handleResponse<ApiUserResponse>(response)
+    return transformUserResponse(data)
+  },
+
+  async updateProfile(username: string, data: ProfileFormData): Promise<User> {
+    const response = await fetchWithAuth(`${API_BASE_URL}/users/${username}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+    const responseData = await handleResponse<ApiUserResponse>(response)
+    return transformUserResponse(responseData)
+  },
 }
 
 export const fetchProfile = async (username?: string | null): Promise<ProfileResponse> => {
@@ -33,7 +211,7 @@ export const fetchProfile = async (username?: string | null): Promise<ProfileRes
     }
 
     const effectiveUsername = username.trim();
-    const apiEndpoint = `${API_URL}/users/public/${effectiveUsername}`;
+    const apiEndpoint = `${API_BASE_URL}/users/public/${effectiveUsername}`;
 
     try {
         const response = await fetch(apiEndpoint, {
@@ -77,8 +255,8 @@ export const STORAGE_KEYS = {
   USER: "user",
 } as const;
 
-export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
+export const apiAxios = axios.create({
+  baseURL: API_BASE_URL,
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
@@ -87,7 +265,7 @@ export const api = axios.create({
 });
 
 // Add request interceptor for authentication
-api.interceptors.request.use(
+apiAxios.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     if (token && config.headers) {
@@ -99,7 +277,7 @@ api.interceptors.request.use(
 );
 
 // Add response interceptor for token refresh
-api.interceptors.response.use(
+apiAxios.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
@@ -115,7 +293,7 @@ api.interceptors.response.use(
         }
 
         const response = await axios.post<{ access: string }>(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/token/refresh/`,
+          `${API_BASE_URL}/token/refresh/`,
           { refresh: refreshToken }
         );
 
@@ -197,7 +375,7 @@ export interface LogoutResponse {
 export const authService = {
   async login(username_or_email: string, password: string): Promise<AuthResponse> {
     const hashedPassword = hashPassword(password);
-    const response = await api.post('/login/', {
+    const response = await apiAxios.post('/login/', {
       username_or_email,
       password: hashedPassword,
     });
@@ -206,7 +384,7 @@ export const authService = {
 
   async register(data: RegisterData): Promise<AuthResponse> {
     const hashedPassword = hashPassword(data.password);
-    const response = await api.post('/users/', {
+    const response = await apiAxios.post('/users/', {
       username: data.username,
       email: data.email,
       password: hashedPassword,
@@ -222,7 +400,7 @@ export const authService = {
   },
 
   async refreshToken(refresh_token: string): Promise<{ access: string }> {
-    const response = await api.post('/token/refresh/', {
+    const response = await apiAxios.post('/token/refresh/', {
       refresh: refresh_token,
     });
     return response.data;
@@ -235,7 +413,7 @@ export const authService = {
 
     try {
       const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-      const response = await api.post<LogoutResponse>(
+      const response = await apiAxios.post<LogoutResponse>(
         '/logout/',
         { refresh: refresh_token },
         {
@@ -265,21 +443,66 @@ export const authService = {
   },
 
   async getSessions(): Promise<Session[]> {
-    const response = await api.get('/session/');
+    const response = await apiAxios.get('/session/');
     return response.data;
   },
 
   async deleteSession(sessionId: number): Promise<void> {
-    const response = await api.delete('/session/', {
+    const response = await apiAxios.delete('/session/', {
       data: { session_id: sessionId },
     });
     return response.data;
   },
 
   async deleteAllOtherSessions(): Promise<void> {
-    const response = await api.delete('/session/', {
+    const response = await apiAxios.delete('/session/', {
       data: { all_except_current: true },
     });
     return response.data;
   },
 };
+
+export const authApi = {
+  async login(username: string, password: string): Promise<AuthResponse> {
+    const hashedPassword = hashPassword(password)
+    const response = await fetch(`${API_BASE_URL}/login/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username_or_email: username,
+        password: hashedPassword,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new ApiError(response.status, 'Login failed')
+    }
+
+    const data = await response.json()
+    
+    // Store tokens in cookies
+    setCookie('access_token', data.access)
+    setCookie('refresh_token', data.refresh)
+    setCookie('user', JSON.stringify(data.user))
+
+    return data
+  },
+
+  async logout(): Promise<void> {
+    const refreshToken = getCookie('refresh_token')
+    if (refreshToken) {
+      try {
+        await api.post('/logout/', { refresh: refreshToken })
+      } catch (error) {
+        console.error('Logout error:', error)
+      }
+    }
+    
+    // Clear cookies
+    document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    document.cookie = 'user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+  },
+}
