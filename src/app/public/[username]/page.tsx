@@ -1,11 +1,9 @@
 "use client";
 
-import { FC, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { useProfile } from "@/hooks/useProfile";
+import { FC, Suspense, useState } from "react";
+import { useParams } from "next/navigation";
 import { Theme } from "@/types/theme";
-import { useState } from "react";
+import { useProfile } from "@/hooks/useProfile";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import {
   ArtisticSection,
@@ -17,6 +15,7 @@ import {
   GeometricError,
   MinimalError,
 } from "@/components/error";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const ERROR_COMPONENTS = {
   geometric: GeometricError,
@@ -30,22 +29,12 @@ const SECTION_COMPONENTS = {
   artistic: ArtisticSection,
 } as const;
 
-const DEFAULT_USERNAME =
-  process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME ?? "default";
-
 const ProfileContent: FC = () => {
   const [design, setDesign] = useState<Theme>("geometric");
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const username = searchParams.get("username");
-  const { profileData, error, loading, loadProfile } =
-    useProfile(DEFAULT_USERNAME);
+  const params = useParams();
+  const username = params.username as string;
 
-  // If username is provided in query, redirect to public profile
-  if (username?.trim()) {
-    router.replace(`/public/${username}`);
-    return <LoadingSpinner />;
-  }
+  const { profileData, error, loading, loadProfile } = useProfile(username);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -81,7 +70,7 @@ const ProfileContent: FC = () => {
   );
 };
 
-export default function HomePage() {
+export default function PublicProfilePage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <ProfileContent />
