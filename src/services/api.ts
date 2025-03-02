@@ -9,8 +9,7 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from 'axios';
-import { ProfileFormData, AuthResponse } from '@/types/api'
-import type { User } from '@/types/api'
+import { ProfileFormData, AuthResponse, User } from '@/types/api'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
@@ -91,7 +90,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
           throw new Error('Unauthorized')
         }
         return newResponse.json()
-      } catch (refreshError) {
+      } catch {
         throw new Error('Unauthorized')
       }
     }
@@ -158,15 +157,13 @@ interface ApiUserResponse {
   email: string
   first_name: string
   last_name: string
-  users: {
-    profile: {
-      is_available: boolean
-      badge: string
-      name: string
-      title: string
-      description: string
-      social_links: Record<string, string>
-    }
+  profile: {
+    is_available: boolean
+    badge: string
+    name: string
+    title: string
+    description: string
+    social_links: Record<string, string>
   }
 }
 
@@ -178,12 +175,12 @@ function transformUserResponse(data: ApiUserResponse): User {
     first_name: data.first_name,
     last_name: data.last_name,
     profile: {
-      is_available: data.users.profile.is_available,
-      badge: data.users.profile.badge,
-      name: data.users.profile.name,
-      title: data.users.profile.title,
-      description: data.users.profile.description,
-      social_links: data.users.profile.social_links,
+      is_available: data.profile.is_available,
+      badge: data.profile.badge,
+      name: data.profile.name,
+      title: data.profile.title,
+      description: data.profile.description,
+      social_links: data.profile.social_links,
     },
   }
 }
@@ -323,28 +320,6 @@ const clearAuthData = () => {
 };
 
 // API service functions
-export interface AuthResponse {
-  access: string;
-  refresh: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    users: {
-      profile: {
-        is_available: boolean;
-        badge: string;
-        name: string;
-        title: string;
-        description: string;
-        social_links: Record<string, string>;
-      };
-    };
-  };
-}
-
 export interface RegisterData {
   username: string;
   email: string;
@@ -372,6 +347,21 @@ export interface LogoutResponse {
   status: 'success' | 'error';
 }
 
+export interface RegisterPayload {
+  username: string;
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  profile: {
+    is_available: boolean;
+    badge: string;
+    name: string;
+    title: string;
+    description: string;
+  }
+}
+
 export const authService = {
   async login(username_or_email: string, password: string): Promise<AuthResponse> {
     const hashedPassword = hashPassword(password);
@@ -382,19 +372,11 @@ export const authService = {
     return response.data;
   },
 
-  async register(data: RegisterData): Promise<AuthResponse> {
+  async register(data: RegisterPayload): Promise<AuthResponse> {
     const hashedPassword = hashPassword(data.password);
     const response = await apiAxios.post('/users/', {
-      username: data.username,
-      email: data.email,
+      ...data,
       password: hashedPassword,
-      users: {
-        profile: {
-          name: data.name,
-          title: data.title,
-          is_available: true,
-        },
-      },
     });
     return response.data;
   },

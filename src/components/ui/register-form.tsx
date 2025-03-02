@@ -12,7 +12,6 @@ import { ArtisticShape } from "../landing/artistic-shape";
 import { Fira_Code, Inter, Playfair_Display } from "next/font/google";
 import { Facebook, Github } from "lucide-react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import { useState } from "react";
@@ -99,7 +98,6 @@ export function RegisterForm({
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const styles = themeStyles[theme];
-  const router = useRouter();
 
   const formFields = [
     { id: "username", label: "Username", type: "text" },
@@ -115,15 +113,17 @@ export function RegisterForm({
     // Validate password
     const passwordValidation = validatePassword(formData.password);
     if (!passwordValidation.isValid) {
-      setValidationError(passwordValidation.message);
+      setValidationError(passwordValidation.message || "Invalid password");
       return;
     }
 
     try {
       setValidationError(null);
       await register(formData);
+      // Registration successful - redirect is handled by auth context
     } catch (err) {
       // Error is handled by the auth context
+      console.error("Registration error:", err);
     }
   };
 

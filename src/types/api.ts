@@ -14,10 +14,10 @@ export interface SocialLinks {
 
 export interface Profile {
   is_available: boolean
-  badge: string
-  name: string
-  title: string
-  description: string
+  badge?: string
+  name?: string
+  title?: string
+  description?: string
   social_links: SocialLinks
 }
 
@@ -32,9 +32,9 @@ export interface User {
 
 export interface ProfileFormData {
   username: string
-  email: string
-  first_name: string
-  last_name: string
+  email?: string
+  first_name?: string
+  last_name?: string
   profile: Profile
 }
 

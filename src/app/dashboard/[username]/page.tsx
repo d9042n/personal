@@ -14,11 +14,13 @@ interface PageProps {
   };
 }
 
-export default function DashboardPage({ params }: PageProps) {
+export default async function DashboardPage({ params }: PageProps) {
+  const username = await Promise.resolve(params.username);
+
   return (
     <div className="container mx-auto py-8 px-4">
       <Suspense fallback={<UserProfileSkeleton />}>
-        <UserProfileDashboard username={params.username} />
+        <UserProfileDashboard username={username} />
       </Suspense>
     </div>
   );

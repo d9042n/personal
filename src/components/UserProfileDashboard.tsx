@@ -25,29 +25,29 @@ import { useRouter } from "next/navigation";
 import { FieldError } from "react-hook-form";
 
 const socialLinksSchema = z.object({
-  github: z.string().url().optional(),
-  linkedin: z.string().url().optional(),
-  twitter: z.string().url().optional(),
-  facebook: z.string().url().optional(),
-  leetcode: z.string().url().optional(),
-  hackerrank: z.string().url().optional(),
-  medium: z.string().url().optional(),
-  stackoverflow: z.string().url().optional(),
-  portfolio: z.string().url().optional(),
-  youtube: z.string().url().optional(),
-  devto: z.string().url().optional(),
+  github: z.string().url().optional().or(z.literal("")),
+  linkedin: z.string().url().optional().or(z.literal("")),
+  twitter: z.string().url().optional().or(z.literal("")),
+  facebook: z.string().url().optional().or(z.literal("")),
+  leetcode: z.string().url().optional().or(z.literal("")),
+  hackerrank: z.string().url().optional().or(z.literal("")),
+  medium: z.string().url().optional().or(z.literal("")),
+  stackoverflow: z.string().url().optional().or(z.literal("")),
+  portfolio: z.string().url().optional().or(z.literal("")),
+  youtube: z.string().url().optional().or(z.literal("")),
+  devto: z.string().url().optional().or(z.literal("")),
 });
 
 const profileSchema = z.object({
   username: z.string().min(3).max(50),
-  email: z.string().email(),
-  first_name: z.string().min(1),
-  last_name: z.string().min(1),
+  email: z.string().email().optional(),
+  first_name: z.string().min(1).optional(),
+  last_name: z.string().min(1).optional(),
   profile: z.object({
-    name: z.string(),
-    title: z.string(),
-    description: z.string(),
-    badge: z.string(),
+    name: z.string().optional(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    badge: z.string().optional(),
     is_available: z.boolean(),
     social_links: socialLinksSchema,
   }),
@@ -74,7 +74,7 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
   });
 
   const {
-    formState: { errors, isDirty, isValid },
+    formState: { errors, isDirty },
   } = form;
 
   useEffect(() => {
@@ -123,15 +123,60 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
       return;
     }
 
+    // Start with required fields
+    const cleanedData: ProfileFormData = {
+      username,
+      profile: {
+        is_available: data.profile.is_available,
+        social_links: {}, // Will be populated with non-empty links
+      },
+    };
+
+    // Add non-empty email, first_name, last_name if they exist
+    if (data.email?.trim()) cleanedData.email = data.email;
+    if (data.first_name?.trim()) cleanedData.first_name = data.first_name;
+    if (data.last_name?.trim()) cleanedData.last_name = data.last_name;
+
+    // Add non-empty profile fields if they exist
+    if (data.profile.name?.trim()) cleanedData.profile.name = data.profile.name;
+    if (data.profile.title?.trim())
+      cleanedData.profile.title = data.profile.title;
+    if (data.profile.description?.trim())
+      cleanedData.profile.description = data.profile.description;
+    if (data.profile.badge?.trim())
+      cleanedData.profile.badge = data.profile.badge;
+
+    // Handle social links - make sure we're accessing the correct property
+    if (data.profile.social_links) {
+      const links = data.profile.social_links;
+      const nonEmptyLinks = Object.entries(links).reduce(
+        (acc, [key, value]) => {
+          // Only include links that have a non-empty value
+          if (value && value.trim() !== "") {
+            acc[key] = value.trim();
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+
+      // Only set social_links if we have any non-empty links
+      if (Object.keys(nonEmptyLinks).length > 0) {
+        cleanedData.profile.social_links = nonEmptyLinks;
+      }
+    }
+
+    console.log("Submitting data:", cleanedData); // Debug log
+
     setIsLoading(true);
     try {
-      await userApi.updateProfile(username, data);
+      await userApi.updateProfile(username, cleanedData);
       toast.success("Your profile has been updated");
     } catch (error) {
       if (error instanceof Error && error.message === "Unauthorized") {
         try {
           await refreshToken();
-          await userApi.updateProfile(username, data);
+          await userApi.updateProfile(username, cleanedData);
           toast.success("Your profile has been updated");
         } catch {
           toast.error("Session expired. Please log in again");
@@ -150,7 +195,7 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Profile Settings</h1>
-          <Button type="submit" disabled={isLoading || !isDirty || !isValid}>
+          <Button type="submit" disabled={isLoading || !isDirty}>
             {isLoading ? "Saving..." : "Save Changes"}
           </Button>
         </div>

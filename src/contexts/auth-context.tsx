@@ -4,13 +4,24 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { User, Session } from "@/types/api";
-import { authApi } from "@/services/api";
+import { authApi, authService, type RegisterPayload } from "@/services/api";
+
+interface RegisterFormData {
+  username: string;
+  email: string;
+  password: string;
+  name: string;
+  title: string;
+}
 
 interface AuthContextType {
   user: User | null;
   sessions: Session[];
   isAuthenticated: boolean;
+  loading: boolean;
+  error: string | null;
   login: (username: string, password: string) => Promise<void>;
+  register: (data: RegisterFormData) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
 }
@@ -30,6 +41,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check for existing session
@@ -95,9 +108,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const register = async (data: RegisterFormData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Transform the form data to match the API payload structure
+      const [firstName, ...lastNameParts] = data.name.split(" ");
+      const lastName = lastNameParts.join(" ");
+
+      const payload: RegisterPayload = {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        first_name: firstName || "",
+        last_name: lastName || "",
+        profile: {
+          is_available: true, // Default value
+          badge: "", // Empty string as default
+          name: data.name,
+          title: data.title,
+          description: "", // Empty string as default
+        },
+      };
+
+      const response = await authService.register(payload);
+      setUser(response.user);
+      setIsAuthenticated(true);
+      router.refresh();
+      router.push(`/dashboard/${response.user.username}`);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Registration failed";
+      setError(message);
+      toast.error(message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, sessions, isAuthenticated, login, logout, refreshToken }}
+      value={{
+        user,
+        sessions,
+        isAuthenticated,
+        loading,
+        error,
+        login,
+        register,
+        logout,
+        refreshToken,
+      }}
     >
       {children}
     </AuthContext.Provider>
