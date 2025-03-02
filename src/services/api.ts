@@ -91,7 +91,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
           throw new Error('Unauthorized')
         }
         return newResponse.json()
-      } catch (error) {
+      } catch (refreshError) {
         throw new Error('Unauthorized')
       }
     }
@@ -121,7 +121,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
           Authorization: `Bearer ${newToken}`,
         },
       })
-    } catch (error) {
+    } catch {
       throw new Error('Unauthorized')
     }
   }
@@ -190,13 +190,13 @@ function transformUserResponse(data: ApiUserResponse): User {
 
 export const userApi = {
   async getProfile(username: string): Promise<User> {
-    const response = await fetchWithAuth(`${API_BASE_URL}/users/${username}`)
+    const response = await fetchWithAuth(`${API_BASE_URL}/users/${username}/`)
     const data = await handleResponse<ApiUserResponse>(response)
     return transformUserResponse(data)
   },
 
   async updateProfile(username: string, data: ProfileFormData): Promise<User> {
-    const response = await fetchWithAuth(`${API_BASE_URL}/users/${username}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/users/${username}/`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
@@ -211,7 +211,7 @@ export const fetchProfile = async (username?: string | null): Promise<ProfileRes
     }
 
     const effectiveUsername = username.trim();
-    const apiEndpoint = `${API_BASE_URL}/users/public/${effectiveUsername}`;
+    const apiEndpoint = `${API_BASE_URL}/users/public/${effectiveUsername}/`;
 
     try {
         const response = await fetch(apiEndpoint, {

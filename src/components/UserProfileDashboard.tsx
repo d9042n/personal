@@ -22,6 +22,7 @@ import { userApi } from "@/services/api";
 import { useAuth } from "@/contexts/auth-context";
 import type { ProfileFormData } from "@/types/api";
 import { useRouter } from "next/navigation";
+import { FieldError } from "react-hook-form";
 
 const socialLinksSchema = z.object({
   github: z.string().url().optional(),
@@ -72,6 +73,10 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
     } as ProfileFormData,
   });
 
+  const {
+    formState: { errors, isDirty, isValid },
+  } = form;
+
   useEffect(() => {
     setMounted(true);
     const fetchUserProfile = async () => {
@@ -113,6 +118,11 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
   }
 
   const onSubmit = async (data: ProfileFormData) => {
+    if (!isDirty) {
+      toast.info("No changes to save");
+      return;
+    }
+
     setIsLoading(true);
     try {
       await userApi.updateProfile(username, data);
@@ -140,7 +150,7 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Profile Settings</h1>
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || !isDirty || !isValid}>
             {isLoading ? "Saving..." : "Save Changes"}
           </Button>
         </div>
@@ -169,6 +179,11 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
                       {...form.register("username")}
                       disabled
                     />
+                    {errors.username && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.username.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
@@ -177,14 +192,29 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
                       type="email"
                       {...form.register("email")}
                     />
+                    {errors.email && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="first_name">First Name</Label>
                     <Input id="first_name" {...form.register("first_name")} />
+                    {errors.first_name && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.first_name.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="last_name">Last Name</Label>
                     <Input id="last_name" {...form.register("last_name")} />
+                    {errors.last_name && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.last_name.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -203,6 +233,11 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
                 <div className="space-y-2">
                   <Label htmlFor="profile.name">Display Name</Label>
                   <Input id="profile.name" {...form.register("profile.name")} />
+                  {errors.profile?.name && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.profile.name.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="profile.title">Title</Label>
@@ -210,6 +245,11 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
                     id="profile.title"
                     {...form.register("profile.title")}
                   />
+                  {errors.profile?.title && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.profile.title.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="profile.description">Bio</Label>
@@ -217,6 +257,11 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
                     id="profile.description"
                     {...form.register("profile.description")}
                   />
+                  {errors.profile?.description && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.profile.description.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="profile.badge">Badge</Label>
@@ -224,6 +269,11 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
                     id="profile.badge"
                     {...form.register("profile.badge")}
                   />
+                  {errors.profile?.badge && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.profile.badge.message}
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -251,20 +301,28 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
                   Object.keys(socialLinksSchema.shape) as Array<
                     keyof typeof socialLinksSchema.shape
                   >
-                ).map((platform) => (
-                  <div key={platform} className="space-y-2">
+                ).map((key) => (
+                  <div key={key} className="space-y-2">
                     <Label
-                      htmlFor={`profile.social_links.${platform}`}
+                      htmlFor={`profile.social_links.${key}`}
                       className="capitalize"
                     >
-                      {platform}
+                      {key}
                     </Label>
                     <Input
-                      id={`profile.social_links.${platform}`}
-                      {...form.register(`profile.social_links.${platform}`)}
-                      placeholder={`Your ${platform} URL`}
+                      id={`profile.social_links.${key}`}
+                      {...form.register(`profile.social_links.${key}`)}
+                      placeholder={`Enter your ${key} URL`}
                       type="url"
                     />
+                    {errors.profile?.social_links?.[key] && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {
+                          (errors.profile.social_links[key] as FieldError)
+                            ?.message
+                        }
+                      </p>
+                    )}
                   </div>
                 ))}
               </CardContent>
