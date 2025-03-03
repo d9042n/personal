@@ -2,12 +2,14 @@ import {useCallback, useEffect, useState} from "react";
 import {ApiError, fetchProfile} from "@/services/api";
 import {ProfileResponse} from "@/types/theme";
 
+interface ProfileState {
+    profileData: ProfileResponse | null;
+    error: string | null;
+    loading: boolean;
+}
+
 export const useProfile = (username: string | null) => {
-    const [state, setState] = useState<{
-        profileData: ProfileResponse | null;
-        error: string | null;
-        loading: boolean;
-    }>({
+    const [state, setState] = useState<ProfileState>({
         profileData: null,
         error: null,
         loading: true,

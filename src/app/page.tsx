@@ -18,6 +18,7 @@ import {
   MinimalError,
 } from "@/components/error";
 
+// Map theme names to their respective components
 const ERROR_COMPONENTS = {
   geometric: GeometricError,
   minimal: MinimalError,
@@ -83,7 +84,7 @@ const ProfileContent: FC = () => {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingSpinner />}>
       <ProfileContent />
     </Suspense>
   );

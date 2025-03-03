@@ -24,6 +24,7 @@ import type { ProfileFormData } from "@/types/api";
 import { useRouter } from "next/navigation";
 import { FieldError } from "react-hook-form";
 
+// Schema for social links validation
 const socialLinksSchema = z.object({
   github: z.string().url().optional().or(z.literal("")),
   linkedin: z.string().url().optional().or(z.literal("")),
@@ -38,6 +39,7 @@ const socialLinksSchema = z.object({
   devto: z.string().url().optional().or(z.literal("")),
 });
 
+// Schema for profile validation
 const profileSchema = z.object({
   username: z.string().min(3).max(50),
   email: z.string().email().optional(),
@@ -117,12 +119,8 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
     return null;
   }
 
-  const onSubmit = async (data: ProfileFormData) => {
-    if (!isDirty) {
-      toast.info("No changes to save");
-      return;
-    }
-
+  // Clean and prepare form data for submission
+  const prepareFormData = (data: ProfileFormData): ProfileFormData => {
     // Start with required fields
     const cleanedData: ProfileFormData = {
       username,
@@ -166,7 +164,16 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
       }
     }
 
-    console.log("Submitting data:", cleanedData); // Debug log
+    return cleanedData;
+  };
+
+  const onSubmit = async (data: ProfileFormData) => {
+    if (!isDirty) {
+      toast.info("No changes to save");
+      return;
+    }
+
+    const cleanedData = prepareFormData(data);
 
     setIsLoading(true);
     try {

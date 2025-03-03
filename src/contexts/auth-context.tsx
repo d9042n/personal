@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { User, Session } from "@/types/api";
-import { authApi, authService, type RegisterPayload } from "@/services/api";
+import { authService, type RegisterPayload } from "@/services/api";
 
 interface RegisterFormData {
   username: string;
@@ -65,11 +65,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      const data = await authApi.login(username, password);
+      const data = await authService.login(username, password);
       setUser(data.user);
       setIsAuthenticated(true);
 
-      // Cookies are handled by authApi
+      // Cookies are handled by authService
       router.refresh();
       router.push(`/dashboard/${data.user.username}`);
     } catch (error) {
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await authApi.logout();
+      await authService.logout();
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {

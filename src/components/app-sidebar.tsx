@@ -2,35 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, User, Settings, Bell, LogOut } from "lucide-react";
+import { Home, User, Settings, LogOut } from "lucide-react";
 import { useContext } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SidebarContext } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/auth-context";
-
-const sidebarItems = [
-  {
-    title: "Home",
-    icon: Home,
-    href: "/dashboard",
-  },
-  {
-    title: "Profile",
-    icon: User,
-    href: "/profile",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/settings",
-  },
-  {
-    title: "Notifications",
-    icon: Bell,
-    href: "/notifications",
-  },
-];
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -44,6 +21,25 @@ export function AppSidebar() {
   if (!user) {
     return null;
   }
+
+  // Generate sidebar items dynamically based on user
+  const sidebarItems = [
+    {
+      title: "Dashboard",
+      icon: Home,
+      href: `/dashboard/${user.username}`,
+    },
+    {
+      title: "Profile",
+      icon: User,
+      href: `/${user.username}`,
+    },
+    {
+      title: "Settings",
+      icon: Settings,
+      href: `/dashboard/${user.username}`,
+    },
+  ];
 
   return (
     <aside

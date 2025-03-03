@@ -13,6 +13,13 @@ import { ProfileFormData, AuthResponse, User } from '@/types/api'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
+// Token storage keys to prevent typos and ensure consistency
+const STORAGE_KEYS = {
+  ACCESS_TOKEN: "access_token",
+  REFRESH_TOKEN: "refresh_token",
+  USER: "user",
+} as const;
+
 // Add debug log
 console.log('API Configuration:', {
     API_BASE_URL,
@@ -36,6 +43,7 @@ export class ApiError extends Error {
 
 // Helper function to get cookies
 function getCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
   const value = `; ${document.cookie}`
   const parts = value.split(`; ${name}=`)
   if (parts.length === 2) return parts.pop()?.split(';').shift()
@@ -56,13 +64,13 @@ function clearCookie(name: string) {
 
 // Helper function to clear all auth cookies
 function clearAuthCookies() {
-  clearCookie('access_token')
-  clearCookie('refresh_token')
-  clearCookie('user')
+  clearCookie(STORAGE_KEYS.ACCESS_TOKEN)
+  clearCookie(STORAGE_KEYS.REFRESH_TOKEN)
+  clearCookie(STORAGE_KEYS.USER)
 }
 
 async function refreshAccessToken(): Promise<string> {
-  const refreshToken = getCookie('refresh_token')
+  const refreshToken = getCookie(STORAGE_KEYS.REFRESH_TOKEN)
   if (!refreshToken) {
     throw new Error('No refresh token available')
   }
@@ -80,7 +88,7 @@ async function refreshAccessToken(): Promise<string> {
   }
 
   const data = await response.json()
-  setCookie('access_token', data.access)
+  setCookie(STORAGE_KEYS.ACCESS_TOKEN, data.access)
   return data.access
 }
 
@@ -112,7 +120,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
-  const accessToken = getCookie('access_token')
+  const accessToken = getCookie(STORAGE_KEYS.ACCESS_TOKEN)
   const headers = {
     'Content-Type': 'application/json',
     ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
@@ -269,7 +277,7 @@ export const apiAxios = axios.create({
 // Add request interceptor for authentication
 apiAxios.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = getCookie('access_token');
+    const token = getCookie(STORAGE_KEYS.ACCESS_TOKEN);
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -288,7 +296,7 @@ apiAxios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = getCookie('refresh_token');
+        const refreshToken = getCookie(STORAGE_KEYS.REFRESH_TOKEN);
         if (!refreshToken) {
           clearAuthCookies();
           throw new Error('No refresh token available');
@@ -300,7 +308,7 @@ apiAxios.interceptors.response.use(
         );
 
         const { access } = response.data;
-        setCookie('access_token', access);
+        setCookie(STORAGE_KEYS.ACCESS_TOKEN, access);
 
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${access}`;
@@ -367,9 +375,9 @@ export const authService = {
     });
     
     // Store tokens in cookies
-    setCookie('access_token', response.data.access);
-    setCookie('refresh_token', response.data.refresh);
-    setCookie('user', JSON.stringify(response.data.user));
+    setCookie(STORAGE_KEYS.ACCESS_TOKEN, response.data.access);
+    setCookie(STORAGE_KEYS.REFRESH_TOKEN, response.data.refresh);
+    setCookie(STORAGE_KEYS.USER, JSON.stringify(response.data.user));
     
     return response.data;
   },
@@ -382,9 +390,9 @@ export const authService = {
     });
     
     // Store tokens in cookies
-    setCookie('access_token', response.data.access);
-    setCookie('refresh_token', response.data.refresh);
-    setCookie('user', JSON.stringify(response.data.user));
+    setCookie(STORAGE_KEYS.ACCESS_TOKEN, response.data.access);
+    setCookie(STORAGE_KEYS.REFRESH_TOKEN, response.data.refresh);
+    setCookie(STORAGE_KEYS.USER, JSON.stringify(response.data.user));
     
     return response.data;
   },
@@ -395,44 +403,33 @@ export const authService = {
     });
     
     // Update access token cookie
-    setCookie('access_token', response.data.access);
+    setCookie(STORAGE_KEYS.ACCESS_TOKEN, response.data.access);
     
     return response.data;
   },
 
-  async logout(refresh_token: string): Promise<LogoutResponse> {
-    if (!refresh_token) {
-      throw new ApiError(400, 'Refresh token is required for logout');
+  async logout(): Promise<void> {
+    const refreshToken = getCookie(STORAGE_KEYS.REFRESH_TOKEN);
+    if (!refreshToken) {
+      console.error('No refresh token found');
+      clearAuthCookies();
+      return;
     }
 
     try {
-      const accessToken = getCookie('access_token');
-      const response = await apiAxios.post<LogoutResponse>(
-        '/logout/',
-        { refresh: refresh_token },
+      const accessToken = getCookie(STORAGE_KEYS.ACCESS_TOKEN);
+      await apiAxios.post('/logout/', 
+        { refresh_token: refreshToken },
         {
           headers: {
-            Authorization: accessToken ? `Bearer ${accessToken}` : undefined,
-          },
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+          }
         }
       );
-
-      // Clear auth cookies regardless of response
-      clearAuthCookies();
-      return response.data;
     } catch (error) {
-      // Clear auth cookies even if the request fails
+      console.error('Logout error:', error);
+    } finally {
       clearAuthCookies();
-
-      if (error instanceof AxiosError) {
-        if (error.response?.status === 400) {
-          throw new ApiError(400, 'Invalid or expired refresh token');
-        }
-        if (error.response?.status === 401) {
-          throw new ApiError(401, 'Unauthorized: Invalid access token');
-        }
-      }
-      throw error;
     }
   },
 
@@ -442,17 +439,15 @@ export const authService = {
   },
 
   async deleteSession(sessionId: number): Promise<void> {
-    const response = await apiAxios.delete('/session/', {
+    await apiAxios.delete('/session/', {
       data: { session_id: sessionId },
     });
-    return response.data;
   },
 
   async deleteAllOtherSessions(): Promise<void> {
-    const response = await apiAxios.delete('/session/', {
+    await apiAxios.delete('/session/', {
       data: { all_except_current: true },
     });
-    return response.data;
   },
 };
 
