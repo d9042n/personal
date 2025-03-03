@@ -2,11 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Bell, Clock, Users } from "lucide-react";
 import { LineChart, BarChart } from "@/components/ui/charts";
 
-interface DashboardContentProps {
-  username: string;
-}
-
-export function DashboardContent({ username }: DashboardContentProps) {
+export function DashboardContent() {
   return (
     <main className="flex-1 overflow-y-auto p-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

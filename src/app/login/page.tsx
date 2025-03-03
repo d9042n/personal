@@ -4,8 +4,9 @@ import { LoginForm } from "@/components/ui/login-form";
 import { useSearchParams } from "next/navigation";
 import { Theme } from "@/types/theme";
 import { AuthLayout } from "@/components/ui/auth-layout";
+import { Suspense } from "react";
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const theme = (searchParams.get("theme") as Theme) || "geometric";
 
@@ -25,5 +26,19 @@ export default function LoginPage() {
         </div>
       </AuthLayout>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-svh items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

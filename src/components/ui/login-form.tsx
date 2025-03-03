@@ -96,7 +96,7 @@ export function LoginForm({
     e.preventDefault();
     try {
       await login(formData.username_or_email, formData.password);
-    } catch (err) {
+    } catch {
       // Error is handled by the auth context
     }
   };

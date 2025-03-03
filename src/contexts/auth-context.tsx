@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { User, Session } from "@/types/api";
@@ -44,6 +50,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const login = async (username: string, password: string) => {
+    try {
+      const data = await authService.login(username, password);
+      setUser(data.user);
+      setIsAuthenticated(true);
+
+      // Cookies are handled by authService
+      router.refresh();
+      router.push(`/dashboard/${data.user.username}`);
+    } catch (error) {
+      toast.error("Login failed. Please check your credentials.");
+      throw error;
+    }
+  };
+
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setUser(null);
+      setSessions([]);
+      setIsAuthenticated(false);
+      router.refresh();
+      router.push("/login");
+    }
+  }, [router]);
+
   useEffect(() => {
     // Check for existing session
     const checkAuth = async () => {
@@ -61,36 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
-  }, []);
-
-  const login = async (username: string, password: string) => {
-    try {
-      const data = await authService.login(username, password);
-      setUser(data.user);
-      setIsAuthenticated(true);
-
-      // Cookies are handled by authService
-      router.refresh();
-      router.push(`/dashboard/${data.user.username}`);
-    } catch (error) {
-      toast.error("Login failed. Please check your credentials.");
-      throw error;
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await authService.logout();
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      setUser(null);
-      setSessions([]);
-      setIsAuthenticated(false);
-      router.refresh();
-      router.push("/login");
-    }
-  };
+  }, [logout]);
 
   const refreshToken = async () => {
     try {
