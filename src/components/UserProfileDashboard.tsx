@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -321,9 +321,16 @@ export function UserProfileDashboard({ username }: UserProfileDashboardProps) {
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Switch
-                    id="profile.is_available"
-                    {...form.register("profile.is_available")}
+                  <Controller
+                    name="profile.is_available"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Switch
+                        id="profile.is_available"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
                   />
                   <Label htmlFor="profile.is_available">
                     Available for hire

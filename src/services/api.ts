@@ -49,6 +49,18 @@ function setCookie(name: string, value: string, days = 7) {
   document.cookie = `${name}=${value};${expires};path=/`
 }
 
+// Helper function to clear cookies
+function clearCookie(name: string) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
+}
+
+// Helper function to clear all auth cookies
+function clearAuthCookies() {
+  clearCookie('access_token')
+  clearCookie('refresh_token')
+  clearCookie('user')
+}
+
 async function refreshAccessToken(): Promise<string> {
   const refreshToken = getCookie('refresh_token')
   if (!refreshToken) {
@@ -245,13 +257,6 @@ export const fetchProfile = async (username?: string | null): Promise<ProfileRes
     }
 };
 
-// Token storage keys to prevent typos and ensure consistency
-export const STORAGE_KEYS = {
-  ACCESS_TOKEN: "accessToken",
-  REFRESH_TOKEN: "refreshToken",
-  USER: "user",
-} as const;
-
 export const apiAxios = axios.create({
   baseURL: API_BASE_URL,
   timeout: 5000,
@@ -264,7 +269,7 @@ export const apiAxios = axios.create({
 // Add request interceptor for authentication
 apiAxios.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    const token = getCookie('access_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -283,9 +288,9 @@ apiAxios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+        const refreshToken = getCookie('refresh_token');
         if (!refreshToken) {
-          clearAuthData();
+          clearAuthCookies();
           throw new Error('No refresh token available');
         }
 
@@ -295,14 +300,14 @@ apiAxios.interceptors.response.use(
         );
 
         const { access } = response.data;
-        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, access);
+        setCookie('access_token', access);
 
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${access}`;
         }
         return axios(originalRequest);
       } catch (refreshError) {
-        clearAuthData();
+        clearAuthCookies();
         return Promise.reject(refreshError);
       }
     }
@@ -311,15 +316,6 @@ apiAxios.interceptors.response.use(
   }
 );
 
-// Helper function to clear auth data
-const clearAuthData = () => {
-  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-  localStorage.removeItem(STORAGE_KEYS.USER);
-  window.location.href = '/login';
-};
-
-// API service functions
 export interface RegisterData {
   username: string;
   email: string;
@@ -369,6 +365,12 @@ export const authService = {
       username_or_email,
       password: hashedPassword,
     });
+    
+    // Store tokens in cookies
+    setCookie('access_token', response.data.access);
+    setCookie('refresh_token', response.data.refresh);
+    setCookie('user', JSON.stringify(response.data.user));
+    
     return response.data;
   },
 
@@ -378,6 +380,12 @@ export const authService = {
       ...data,
       password: hashedPassword,
     });
+    
+    // Store tokens in cookies
+    setCookie('access_token', response.data.access);
+    setCookie('refresh_token', response.data.refresh);
+    setCookie('user', JSON.stringify(response.data.user));
+    
     return response.data;
   },
 
@@ -385,6 +393,10 @@ export const authService = {
     const response = await apiAxios.post('/token/refresh/', {
       refresh: refresh_token,
     });
+    
+    // Update access token cookie
+    setCookie('access_token', response.data.access);
+    
     return response.data;
   },
 
@@ -394,7 +406,7 @@ export const authService = {
     }
 
     try {
-      const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+      const accessToken = getCookie('access_token');
       const response = await apiAxios.post<LogoutResponse>(
         '/logout/',
         { refresh: refresh_token },
@@ -405,12 +417,12 @@ export const authService = {
         }
       );
 
-      // Clear auth data regardless of response
-      clearAuthData();
+      // Clear auth cookies regardless of response
+      clearAuthCookies();
       return response.data;
     } catch (error) {
-      // Clear auth data even if the request fails
-      clearAuthData();
+      // Clear auth cookies even if the request fails
+      clearAuthCookies();
 
       if (error instanceof AxiosError) {
         if (error.response?.status === 400) {
@@ -474,17 +486,26 @@ export const authApi = {
 
   async logout(): Promise<void> {
     const refreshToken = getCookie('refresh_token')
-    if (refreshToken) {
-      try {
-        await api.post('/logout/', { refresh: refreshToken })
-      } catch (error) {
-        console.error('Logout error:', error)
-      }
+    if (!refreshToken) {
+      console.error('No refresh token found')
+      clearAuthCookies()
+      return
     }
-    
-    // Clear cookies
-    document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
-    document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
-    document.cookie = 'user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+
+    try {
+      const accessToken = getCookie('access_token')
+      await fetch(`${API_BASE_URL}/logout/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+        },
+        body: JSON.stringify({ refresh: refreshToken })
+      })
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      clearAuthCookies()
+    }
   },
 }
