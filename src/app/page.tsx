@@ -31,8 +31,8 @@ const SECTION_COMPONENTS = {
   artistic: ArtisticSection,
 } as const;
 
-const DEFAULT_USERNAME =
-  process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME ?? "default";
+// Use environment variable but with fallback
+const DEFAULT_USERNAME = process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME;
 
 const ProfileContent: FC = () => {
   const [design, setDesign] = useState<Theme>("geometric");
@@ -40,7 +40,7 @@ const ProfileContent: FC = () => {
   const searchParams = useSearchParams();
   const username = searchParams.get("username");
   const { profileData, error, loading, loadProfile } =
-    useProfile(DEFAULT_USERNAME);
+    useProfile(DEFAULT_USERNAME || null);
 
   // If username is provided in query, redirect to public profile
   if (username?.trim()) {

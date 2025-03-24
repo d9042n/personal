@@ -1,22 +1,9 @@
 export type Theme = "geometric" | "minimal" | "artistic";
+import { SocialLinks } from "./api";
 
 export interface ThemeProps {
     currentTheme: Theme;
     onThemeChange: (theme: Theme) => void;
-}
-
-export interface SocialLinks {
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
-    facebook?: string;
-    leetcode?: string;
-    hackerrank?: string;
-    medium?: string;
-    stackoverflow?: string;
-    portfolio?: string;
-    youtube?: string;
-    devto?: string;
 }
 
 export interface ProfileData {

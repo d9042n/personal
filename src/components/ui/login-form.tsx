@@ -196,7 +196,6 @@ export function LoginForm({
                     "w-full h-11 rounded-md transition-all duration-300",
                     styles.socialButton
                   )}
-                  onClick={() => console.log("GitHub login")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.1 }}
@@ -212,7 +211,6 @@ export function LoginForm({
                     "w-full h-11 rounded-md transition-all duration-300",
                     styles.socialButton
                   )}
-                  onClick={() => console.log("Google login")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.1 }}
@@ -233,7 +231,6 @@ export function LoginForm({
                     "w-full h-11 rounded-md transition-all duration-300",
                     styles.socialButton
                   )}
-                  onClick={() => console.log("Facebook login")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.1 }}
