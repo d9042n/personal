@@ -10,7 +10,8 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { User, Session } from "@/types/api";
-import { authService, type RegisterPayload } from "@/services/api";
+import { authService, type RegisterPayload, ApiError } from "@/services/api";
+import { getCookie } from "@/lib/cookies";
 
 interface RegisterFormData {
   username: string;
@@ -33,14 +34,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Helper function to get cookies
-function getCookie(name: string): string | undefined {
-  if (typeof document === "undefined") return undefined;
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(";").shift();
-}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -69,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authService.logout();
     } catch (error) {
-      console.error("Logout failed:", error);
+      // Silent failure, continue with local logout
     } finally {
       setUser(null);
       setSessions([]);
@@ -90,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error("Auth check failed:", error);
+        // Auth check failed, log the user out
         await logout();
       }
     };
@@ -108,9 +101,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(userData);
       setIsAuthenticated(true);
     } catch (error) {
-      console.error("Token refresh failed:", error);
+      // Token refresh failed, log the user out
       await logout();
-      throw error;
+      throw new ApiError(401, "Session expired. Please log in again.");
     }
   };
 
@@ -134,17 +127,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: data.name,
           title: data.title,
           description: "", // Empty string as default
+          social_links: {}, // Empty object as default
         },
       };
 
+      toast.info("Registering user...");
       const response = await authService.register(payload);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      router.refresh();
-      router.push(`/dashboard/${response.user.username}`);
+      toast.success("Registration successful!");
+      
+      // Ensure we have user data and tokens
+      if (response.user && response.access) {
+        // We have a complete response with user and tokens
+        setUser(response.user);
+        setIsAuthenticated(true);
+        
+        // Refresh the router to update navigation
+        router.refresh();
+        
+        const username = response.user.username;
+        toast.info(`Redirecting to dashboard/${username}...`);
+        router.push(`/dashboard/${username}`);
+      } else {
+        // Handle case where the API doesn't return expected format
+        // Try immediate login with credentials
+        const originalPassword = data.password;
+        toast.info("Completing registration...");
+        
+        try {
+          // Attempt login with the registered credentials
+          const loginResponse = await authService.loginAfterRegistration(
+            payload.username,
+            originalPassword
+          );
+          
+          setUser(loginResponse.user);
+          setIsAuthenticated(true);
+          router.refresh();
+          
+          toast.info(`Redirecting to dashboard/${loginResponse.user.username}...`);
+          router.push(`/dashboard/${loginResponse.user.username}`);
+        } catch (loginError) {
+          // If auto-login fails, direct user to login page
+          toast.error("Please log in with your new credentials");
+          router.push("/login");
+        }
+      }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Registration failed";
+      let message = "Registration failed. Please try again.";
+      
+      if (error instanceof ApiError) {
+        message = error.message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+      
       setError(message);
       toast.error(message);
       throw error;

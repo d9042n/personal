@@ -10,21 +10,9 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import { ProfileFormData, AuthResponse, User, Session } from '@/types/api'
+import { getCookie, setCookie, clearCookie, clearAuthCookies, STORAGE_KEYS } from '@/lib/cookies';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
-
-// Token storage keys to prevent typos and ensure consistency
-const STORAGE_KEYS = {
-  ACCESS_TOKEN: "access_token",
-  REFRESH_TOKEN: "refresh_token",
-  USER: "user",
-} as const;
-
-// Add debug log
-console.log('API Configuration:', {
-  API_BASE_URL,
-  DEFAULT_USERNAME: process.env.NEXT_PUBLIC_DEFAULT_PROFILE_USERNAME
-});
 
 export interface ApiResponse<T> {
   data: T
@@ -39,34 +27,6 @@ export class ApiError extends Error {
     this.name = 'ApiError'
     this.status = status
   }
-}
-
-// Helper function to get cookies
-function getCookie(name: string): string | undefined {
-  if (typeof document === "undefined") return undefined;
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()?.split(';').shift()
-}
-
-// Helper function to set cookies
-function setCookie(name: string, value: string, days = 7) {
-  const date = new Date()
-  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
-  const expires = `expires=${date.toUTCString()}`
-  document.cookie = `${name}=${value};${expires};path=/`
-}
-
-// Helper function to clear cookies
-function clearCookie(name: string) {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
-}
-
-// Helper function to clear all auth cookies
-function clearAuthCookies() {
-  clearCookie(STORAGE_KEYS.ACCESS_TOKEN)
-  clearCookie(STORAGE_KEYS.REFRESH_TOKEN)
-  clearCookie(STORAGE_KEYS.USER)
 }
 
 export const apiAxios = axios.create({
@@ -261,6 +221,18 @@ export const authService = {
     }
   },
 
+  // Special method to log in immediately after registration if necessary
+  async loginAfterRegistration(username: string, plainPassword: string): Promise<AuthResponse> {
+    try {
+      // We need to use the original unhashed password for login
+      // The login method will hash it again
+      return await this.login(username, plainPassword);
+    } catch (error) {
+      console.error('Auto-login error:', error);
+      throw new ApiError(500, 'Auto-login failed after registration');
+    }
+  },
+
   async register(data: RegisterPayload): Promise<AuthResponse> {
     try {
       const hashedPassword = hashPassword(data.password);
@@ -269,17 +241,59 @@ export const authService = {
         password: hashedPassword,
       });
 
-      // Store tokens in cookies
-      setCookie(STORAGE_KEYS.ACCESS_TOKEN, response.data.access);
-      setCookie(STORAGE_KEYS.REFRESH_TOKEN, response.data.refresh);
-      setCookie(STORAGE_KEYS.USER, JSON.stringify(response.data.user));
+      // Check and handle the response properly
+      if (response.data && response.status === 201) {
+        // Expected response structure: {refresh, access, user}
+        if (response.data.access && response.data.refresh && response.data.user) {
+          // Store tokens in cookies
+          setCookie(STORAGE_KEYS.ACCESS_TOKEN, response.data.access);
+          setCookie(STORAGE_KEYS.REFRESH_TOKEN, response.data.refresh);
+          setCookie(STORAGE_KEYS.USER, JSON.stringify(response.data.user));
 
-      return response.data;
+          return response.data;
+        }
+
+        // Handle different response formats
+        if (response.data.username) {
+          // The API returned a user object directly
+          const authToken = response.headers?.authorization?.replace('Bearer ', '') || '';
+
+          // Create a structured response
+          const constructedResponse: AuthResponse = {
+            access: authToken,
+            refresh: '',  // May not be available
+            user: response.data,
+          };
+
+          // Store available data
+          if (authToken) {
+            setCookie(STORAGE_KEYS.ACCESS_TOKEN, authToken);
+          }
+          setCookie(STORAGE_KEYS.USER, JSON.stringify(response.data));
+
+          return constructedResponse;
+        }
+      }
+
+      throw new ApiError(500, 'Unexpected API response structure');
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        throw new ApiError(error.response?.status || 500, error.response?.data?.detail || 'Registration failed');
+        const errorData = error.response?.data;
+        let errorMessage = 'Registration failed';
+
+        if (errorData) {
+          if (typeof errorData === 'string') {
+            errorMessage = errorData;
+          } else if (errorData.detail) {
+            errorMessage = errorData.detail;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        }
+
+        throw new ApiError(error.response?.status || 500, errorMessage);
       }
-      throw new ApiError(500, 'Registration failed');
+      throw new ApiError(500, 'Registration failed. Please try again later.');
     }
   },
 
@@ -305,7 +319,7 @@ export const authService = {
   async logout(): Promise<void> {
     const refreshToken = getCookie(STORAGE_KEYS.REFRESH_TOKEN);
     if (!refreshToken) {
-      console.error('No refresh token found');
+      // No refresh token found, just clear cookies and return
       clearAuthCookies();
       return;
     }
@@ -321,7 +335,8 @@ export const authService = {
         }
       );
     } catch (error) {
-      console.error('Logout error:', error);
+      // Silently handle logout errors but still clear cookies
+      // This ensures user can still "log out" even if the API call fails
     } finally {
       clearAuthCookies();
     }

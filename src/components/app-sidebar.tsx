@@ -37,7 +37,7 @@ export function AppSidebar() {
     {
       title: "Settings",
       icon: Settings,
-      href: `/dashboard/${user.username}`,
+      href: `/dashboard/${user.username}/settings`,
     },
   ];
 

@@ -119,11 +119,14 @@ export function RegisterForm({
 
     try {
       setValidationError(null);
+      
+      // Register the user - redirect is handled in auth context
       await register(formData);
-      // Registration successful - redirect is handled by auth context
+      
+      // No need for additional redirect logic here as it's handled by the auth context
     } catch (err) {
-      // Error is handled by the auth context
-      console.error("Registration error:", err);
+      // Error is already handled by auth context
+      console.error("Registration error caught in form:", err);
     }
   };
 
@@ -201,7 +204,14 @@ export function RegisterForm({
                 className={styles.button}
                 disabled={loading}
               >
-                {loading ? "Creating account..." : "Register"}
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <span>Creating account...</span>
+                  </div>
+                ) : (
+                  "Register"
+                )}
               </Button>
 
               <div className="relative text-center text-sm">

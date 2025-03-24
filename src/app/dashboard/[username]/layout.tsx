@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Spinner } from "@/components/ui/spinner";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export default function DashboardLayout({
   children,
@@ -30,7 +30,7 @@ export default function DashboardLayout({
   if (!isClient || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Spinner size="lg" />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -44,8 +44,7 @@ export default function DashboardLayout({
     try {
       await logout();
     } catch (error) {
-      console.error("Logout failed:", error);
-      // Force redirect to login even if logout fails
+      // Gracefully handle logout errors by redirecting to login page
       router.push("/login");
     }
   };
