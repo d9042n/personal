@@ -3,34 +3,34 @@
 	development-lint development-test development-format development-env development-env-setup
 
 development-build:
-	docker compose -f docker/development/compose.yaml build --no-cache
+	docker compose -f docker/development/compose.yaml --env-file .env.development build --no-cache
 
 development-up:
-	docker compose -f docker/development/compose.yaml up
+	docker compose -f docker/development/compose.yaml --env-file .env.development up
 
 development-up-d:
-	docker compose -f docker/development/compose.yaml up -d
+	docker compose -f docker/development/compose.yaml --env-file .env.development up -d
 
 development-down:
-	docker compose -f docker/development/compose.yaml down
+	docker compose -f docker/development/compose.yaml --env-file .env.development down
 
 development-logs:
-	docker compose -f docker/development/compose.yaml logs -f
+	docker compose -f docker/development/compose.yaml --env-file .env.development logs -f
 
 development-shell:
-	docker compose -f docker/development/compose.yaml exec personal-development sh
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development sh
 
 development-lint:
-	docker compose -f docker/development/compose.yaml exec personal-development npm run lint
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development npm run lint
 
 development-test:
-	docker compose -f docker/development/compose.yaml exec personal-development npm run test
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development npm run test
 
 development-format:
-	docker compose -f docker/development/compose.yaml exec personal-development npm run format
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development npm run format
 
 development-env:
-	docker compose -f docker/development/compose.yaml exec personal-development env
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development env
 
 development-env-setup:
 	@if [ ! -f .env.development ]; then \
@@ -44,7 +44,7 @@ development: development-env-setup development-up
 .PHONY: production production-build production-up production-down production-logs production-prune production-deploy production-health production-env-setup
 
 production-build:
-	docker compose -f docker/production/compose.yaml build --no-cache
+	docker compose -f docker/production/compose.yaml --env-file .env.production build --no-cache
 
 production-env-setup:
 	@if [ ! -f .env.production ]; then \
@@ -53,13 +53,13 @@ production-env-setup:
 	fi
 
 production-up: production-env-setup
-	docker compose -f docker/production/compose.yaml up -d
+	docker compose -f docker/production/compose.yaml --env-file .env.production up -d
 
 production-down:
-	docker compose -f docker/production/compose.yaml down
+	docker compose -f docker/production/compose.yaml --env-file .env.production down
 
 production-logs:
-	docker compose -f docker/production/compose.yaml logs -f
+	docker compose -f docker/production/compose.yaml --env-file .env.production logs -f
 
 production-prune:
 	docker system prune -f
@@ -73,22 +73,22 @@ production-health:
 .PHONY: test test-coverage test-e2e lint format type-check
 
 test:
-	docker compose -f docker/development/compose.yaml exec personal-development npm run test
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development npm run test
 
 test-coverage:
-	docker compose -f docker/development/compose.yaml exec personal-development npm run test:coverage
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development npm run test:coverage
 
 test-e2e:
-	docker compose -f docker/development/compose.yaml exec personal-development npm run test:e2e
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development npm run test:e2e
 
 lint:
-	docker compose -f docker/development/compose.yaml exec personal-development npm run lint
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development npm run lint
 
 format:
-	docker compose -f docker/development/compose.yaml exec personal-development npm run format
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development npm run format
 
 type-check:
-	docker compose -f docker/development/compose.yaml exec personal-development npm run type-check
+	docker compose -f docker/development/compose.yaml --env-file .env.development exec personal-development npm run type-check
 
 # Cleanup
 .PHONY: clean
