@@ -28,7 +28,7 @@ services:
           "--no-verbose",
           "--tries=1",
           "--spider",
-          "http://localhost:${PORT_INTERNAL:-3000}/api/health",
+          "http://localhost:${PORT_EXTERNAL:-4000}/api/health",
         ]
       interval: 30s
       timeout: 10s
